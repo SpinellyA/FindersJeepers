@@ -79,7 +79,7 @@ else
 }
 
 @* Add/Edit Dialog *@
-<MudDialog @bind-IsVisible="_dialogVisible" Options="_dialogOptions">
+<MudDialog Visible="_dialogVisible" Options="_dialogOptions">
     <TitleContent>
         <MudText Typo="Typo.h6">@(_isEditing ? "Edit Jeepney" : "Add Jeepney")</MudText>
     </TitleContent>
@@ -121,7 +121,7 @@ else
 </MudDialog>
 
 @* Change Driver Dialog *@
-<MudDialog @bind-IsVisible="_changeDriverDialogVisible" Options="_dialogOptions">
+<MudDialog Visible="_changeDriverDialogVisible" Options="_dialogOptions">
     <TitleContent>
         <MudText Typo="Typo.h6">Change Driver — @_selectedJeepney?.PlateNumber</MudText>
     </TitleContent>

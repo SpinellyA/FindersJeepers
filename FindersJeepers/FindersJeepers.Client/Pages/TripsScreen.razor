@@ -107,7 +107,7 @@ else
 }
 
 @* Create Trip Dialog *@
-<MudDialog @bind-IsVisible="_dialogVisible" Options="_dialogOptions">
+<MudDialog Visible="_dialogVisible" Options="_dialogOptions">
     <TitleContent>
         <MudText Typo="Typo.h6">Create Trip</MudText>
     </TitleContent>
@@ -130,7 +130,7 @@ else
 </MudDialog>
 
 @* Log Stop Event Dialog *@
-<MudDialog @bind-IsVisible="_logDialogVisible" Options="_dialogOptions">
+<MudDialog Visible="_logDialogVisible" Options="_dialogOptions">
     <TitleContent>
         <MudText Typo="Typo.h6">Log Stop Event — @_selectedTrip?.PlateNumber</MudText>
     </TitleContent>
@@ -162,7 +162,7 @@ else
 </MudDialog>
 
 @* View Logs Dialog *@
-<MudDialog @bind-IsVisible="_logsPanelVisible" Options="_logsDialogOptions">
+<MudDialog Visible="_logsPanelVisible" Options="_logsDialogOptions">
     <TitleContent>
         <MudText Typo="Typo.h6">Trip Logs — @_selectedTrip?.PlateNumber</MudText>
     </TitleContent>

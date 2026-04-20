@@ -1,4 +1,6 @@
 ﻿@page "/drivers"
+@rendermode InteractiveAuto
+@inject IDialogService DialogService
 @using MudBlazor
 
 <MudText Typo="Typo.h4" Class="mb-1 fw-bold">Drivers</MudText>
@@ -15,7 +17,7 @@
     <MudButton Variant="Variant.Filled"
                Color="Color.Primary"
                StartIcon="@Icons.Material.Filled.PersonAdd"
-               OnClick="OpenAddDialog">
+               OnClick="@OpenAddDialog">
         Add Driver
     </MudButton>
 </MudStack>
@@ -78,7 +80,7 @@ else
 }
 
 @* Add/Edit Dialog *@
-<MudDialog @bind-IsVisible="_dialogVisible" Options="_dialogOptions">
+<MudDialog Visible="_dialogVisible" Options="_dialogOptions" >
     <TitleContent>
         <MudText Typo="Typo.h6">@(_isEditing ? "Edit Driver" : "Add Driver")</MudText>
     </TitleContent>
@@ -109,7 +111,11 @@ else
     </DialogActions>
 </MudDialog>
 
+<MudText>Dialog: @_dialogVisible</MudText>
+
 @code {
+
+
     private string _search = string.Empty;
     private bool _dialogVisible = false;
     private bool _isEditing = false;
@@ -147,6 +153,7 @@ else
         _form = new DriverForm();
         _isEditing = false;
         _dialogVisible = true;
+
     }
 
     private void OpenEditDialog(DriverDto driver)
@@ -162,6 +169,10 @@ else
         };
         _isEditing = true;
         _dialogVisible = true;
+
+
+
+        StateHasChanged();
     }
 
     private void CloseDialog() => _dialogVisible = false;
