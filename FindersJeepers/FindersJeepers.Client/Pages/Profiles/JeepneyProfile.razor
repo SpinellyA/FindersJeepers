@@ -1,0 +1,226 @@
+﻿@page "/jeepneys/{Id:int}"
+@using MudBlazor
+
+@if (_jeepney is null)
+{
+    <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+}
+else
+{
+    <MudBreadcrumbs Items="_breadcrumbs" Class="mb-4 px-0" />
+
+    <MudGrid Spacing="4">
+
+        @* ── Left column: identity card ── *@
+        <MudItem xs="12" md="4">
+            <MudCard Elevation="2" Style="border-radius:14px;">
+                <MudCardContent Class="d-flex flex-column align-items-center text-center pa-6">
+                    <MudAvatar Color="Color.Secondary" Style="width:80px;height:80px;" Class="mb-3" Variant="Variant.Filled">
+                        <MudIcon Icon="@Icons.Material.Filled.DirectionsBus" Style="font-size:2.2rem;" />
+                    </MudAvatar>
+                    <MudText Typo="Typo.h5" Class="fw-bold">@_jeepney.PlateNumber</MudText>
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary mb-1">Body #@_jeepney.BodyNumber</MudText>
+                    <MudChip T="string" Color="@GetStatusColor(_jeepney.CurrentStatus)" Variant="Variant.Filled" Size="Size.Small" Class="mb-4">
+                        @_jeepney.CurrentStatus
+                    </MudChip>
+
+                    <MudDivider Class="w-100 mb-4" />
+
+                    <MudStack Spacing="2" Class="w-100 text-start">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                            <MudIcon Icon="@Icons.Material.Filled.AirlineSeatReclineNormal" Size="Size.Small" Class="mud-text-secondary" />
+                            <MudText Typo="Typo.body2">Capacity: @_jeepney.Capacity</MudText>
+                        </MudStack>
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                            <MudIcon Icon="@Icons.Material.Filled.Route" Size="Size.Small" Class="mud-text-secondary" />
+                            <MudText Typo="Typo.body2">Route: @_jeepney.RouteCode</MudText>
+                        </MudStack>
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                            <MudIcon Icon="@Icons.Material.Filled.Person" Size="Size.Small" Class="mud-text-secondary" />
+                            <MudText Typo="Typo.body2">Driver: @_jeepney.DriverName</MudText>
+                        </MudStack>
+                    </MudStack>
+
+                    <MudDivider Class="w-100 my-4" />
+
+                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" FullWidth="true"
+                               StartIcon="@Icons.Material.Filled.Edit" OnClick="OpenEditDialog">
+                        Edit
+                    </MudButton>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        @* ── Right column ── *@
+        <MudItem xs="12" md="8">
+            <MudStack Spacing="4">
+
+                @* Current Trip *@
+                <MudCard Elevation="2" Style="border-radius:14px;">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6" Class="fw-bold">Current Trip</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudDivider />
+                    <MudCardContent>
+                        @if (_jeepney.CurrentTrip is null)
+                        {
+                            <MudAlert Severity="Severity.Info" Dense="true">No active trip at the moment.</MudAlert>
+                        }
+                        else
+                        {
+                            var t = _jeepney.CurrentTrip;
+                            <MudStack Spacing="2">
+                                <MudStack Row="true" Justify="Justify.SpaceBetween">
+                                    <MudStack Spacing="0">
+                                        <MudText Typo="Typo.caption" Class="mud-text-secondary">TRIP ID</MudText>
+                                        <MudText Typo="Typo.body1" Class="fw-bold">#@t.Id</MudText>
+                                    </MudStack>
+                                    <MudStack Spacing="0">
+                                        <MudText Typo="Typo.caption" Class="mud-text-secondary">STATUS</MudText>
+                                        <MudChip T="string" Color="@GetStatusColor(t.Status)" Variant="Variant.Filled" Size="Size.Small">@t.Status</MudChip>
+                                    </MudStack>
+                                    <MudStack Spacing="0">
+                                        <MudText Typo="Typo.caption" Class="mud-text-secondary">DEPARTED</MudText>
+                                        <MudText Typo="Typo.body2">@(t.DepartureTime?.ToString("hh:mm tt") ?? "—")</MudText>
+                                    </MudStack>
+                                    <MudStack Spacing="0">
+                                        <MudText Typo="Typo.caption" Class="mud-text-secondary">LOGS</MudText>
+                                        <MudText Typo="Typo.body2">@t.LogCount</MudText>
+                                    </MudStack>
+                                </MudStack>
+                                <MudButton Variant="Variant.Text" Color="Color.Primary"
+                                           Href="@($"/trips/{t.Id}")" StartIcon="@Icons.Material.Filled.OpenInNew">
+                                    View Full Trip
+                                </MudButton>
+                            </MudStack>
+                        }
+                    </MudCardContent>
+                </MudCard>
+
+                @* Past Trips *@
+                <MudCard Elevation="2" Style="border-radius:14px;">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6" Class="fw-bold">Past Trips</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudDivider />
+                    <MudCardContent>
+                        @if (!_jeepney.PastTrips.Any())
+                        {
+                            <MudAlert Severity="Severity.Info" Dense="true">No past trips recorded.</MudAlert>
+                        }
+                        else
+                        {
+                            <MudTable Items="_jeepney.PastTrips" Dense="true" Hover="true" Elevation="0">
+                                <HeaderContent>
+                                    <MudTh>Trip ID</MudTh>
+                                    <MudTh>Route</MudTh>
+                                    <MudTh>Departed</MudTh>
+                                    <MudTh>Arrived</MudTh>
+                                    <MudTh>Logs</MudTh>
+                                    <MudTh></MudTh>
+                                </HeaderContent>
+                                <RowTemplate>
+                                    <MudTd>#@context.Id</MudTd>
+                                    <MudTd>@context.RouteCode</MudTd>
+                                    <MudTd>@(context.DepartureTime?.ToString("MMM dd, hh:mm tt") ?? "—")</MudTd>
+                                    <MudTd>@(context.ArrivalTime?.ToString("MMM dd, hh:mm tt") ?? "—")</MudTd>
+                                    <MudTd>@context.LogCount</MudTd>
+                                    <MudTd>
+                                        <MudIconButton Icon="@Icons.Material.Filled.OpenInNew" Size="Size.Small"
+                                                       Href="@($"/trips/{context.Id}")" />
+                                    </MudTd>
+                                </RowTemplate>
+                            </MudTable>
+                        }
+                    </MudCardContent>
+                </MudCard>
+
+            </MudStack>
+        </MudItem>
+    </MudGrid>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private JeepneyProfileDto? _jeepney;
+    private List<BreadcrumbItem> _breadcrumbs = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Replace with: _jeepney = await JeepneyService.GetProfileAsync(Id);
+        await Task.Delay(300);
+
+        _jeepney = new JeepneyProfileDto
+        {
+            Id = Id,
+            PlateNumber = "ABX 1234",
+            BodyNumber = "001",
+            Capacity = 16,
+            RouteCode = "01A - Ayala-Carbon",
+            DriverName = "Juan Dela Cruz",
+            DriverId = 1,
+            CurrentStatus = "OnGoing",
+            CurrentTrip = new TripSummary
+            {
+                Id = 5,
+                RouteCode = "01A",
+                Status = "OnGoing",
+                DepartureTime = DateTime.Now.AddHours(-1),
+                LogCount = 3
+            },
+            PastTrips = new List<TripSummary>
+            {
+                new() { Id = 1, RouteCode = "01A", Status = "Completed", DepartureTime = DateTime.Now.AddDays(-1).AddHours(-3), ArrivalTime = DateTime.Now.AddDays(-1).AddHours(-1), LogCount = 6 },
+                new() { Id = 3, RouteCode = "01A", Status = "Completed", DepartureTime = DateTime.Now.AddDays(-2).AddHours(-4), ArrivalTime = DateTime.Now.AddDays(-2).AddHours(-2), LogCount = 5 },
+            }
+        };
+
+        _breadcrumbs = new List<BreadcrumbItem>
+        {
+            new("Jeepneys", href: "/jeepneys"),
+            new(_jeepney.PlateNumber, href: null, disabled: true)
+        };
+    }
+
+    private void OpenEditDialog()
+    {
+        // Replace with edit dialog
+    }
+
+    private Color GetStatusColor(string status) => status switch
+    {
+        "OnGoing" => Color.Success,
+        "Waiting" => Color.Warning,
+        "Completed" => Color.Default,
+        _ => Color.Default
+    };
+
+    public class JeepneyProfileDto
+    {
+        public int Id { get; set; }
+        public string PlateNumber { get; set; } = string.Empty;
+        public string BodyNumber { get; set; } = string.Empty;
+        public int Capacity { get; set; }
+        public string RouteCode { get; set; } = string.Empty;
+        public string DriverName { get; set; } = string.Empty;
+        public int DriverId { get; set; }
+        public string CurrentStatus { get; set; } = string.Empty;
+        public TripSummary? CurrentTrip { get; set; }
+        public List<TripSummary> PastTrips { get; set; } = new();
+    }
+
+    public class TripSummary
+    {
+        public int Id { get; set; }
+        public string RouteCode { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public DateTime? DepartureTime { get; set; }
+        public DateTime? ArrivalTime { get; set; }
+        public int LogCount { get; set; }
+    }
+}

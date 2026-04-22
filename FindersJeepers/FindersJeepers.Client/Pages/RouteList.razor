@@ -262,22 +262,6 @@ else
         // Replace with confirm dialog + await RouteService.DeleteAsync(route.Id);
     }
 
-    public class RouteDto
-    {
-        public int Id { get; set; }
-        public string RouteCode { get; set; } = string.Empty;
-        public string LocationStart { get; set; } = string.Empty;
-        public string LocationEnd { get; set; } = string.Empty;
-        public List<RouteStopDto> Stops { get; set; } = new();
-    }
-
-    public class RouteStopDto
-    {
-        public int LocationId { get; set; }
-        public string LocationName { get; set; } = string.Empty;
-        public int StopIndex { get; set; }
-    }
-
     public class RouteForm
     {
         public int Id { get; set; }

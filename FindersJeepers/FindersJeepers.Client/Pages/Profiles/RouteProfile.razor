@@ -1,0 +1,214 @@
+﻿@page "/routes/{Id:int}"
+@using MudBlazor
+
+@if (_route is null)
+{
+    <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+}
+else
+{
+    <MudBreadcrumbs Items="_breadcrumbs" Class="mb-4 px-0" />
+
+    <MudGrid Spacing="4">
+
+        @* ── Left column: identity + jeepneys ── *@
+        <MudItem xs="12" md="4">
+            <MudStack Spacing="4">
+
+                <MudCard Elevation="2" Style="border-radius:14px;">
+                    <MudCardContent Class="d-flex flex-column align-items-center text-center pa-6">
+                        <MudAvatar Color="Color.Tertiary" Style="width:80px;height:80px;" Class="mb-3" Variant="Variant.Filled">
+                            <MudIcon Icon="@Icons.Material.Filled.AltRoute" Style="font-size:2.2rem;" />
+                        </MudAvatar>
+                        <MudText Typo="Typo.h5" Class="fw-bold mb-1">@_route.RouteCode</MudText>
+                        <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                            @_route.LocationStart → @_route.LocationEnd
+                        </MudText>
+
+                        <MudDivider Class="w-100 my-4" />
+
+                        <MudStack Row="true" Justify="Justify.SpaceEvenly" Class="w-100">
+                            <MudStack Spacing="0" AlignItems="AlignItems.Center">
+                                <MudText Typo="Typo.h6" Class="fw-bold">@_route.Stops.Count</MudText>
+                                <MudText Typo="Typo.caption" Class="mud-text-secondary">Stops</MudText>
+                            </MudStack>
+                            <MudDivider Vertical="true" FlexItem="true" />
+                            <MudStack Spacing="0" AlignItems="AlignItems.Center">
+                                <MudText Typo="Typo.h6" Class="fw-bold">@_route.AssignedJeepneys.Count</MudText>
+                                <MudText Typo="Typo.caption" Class="mud-text-secondary">Jeepneys</MudText>
+                            </MudStack>
+                        </MudStack>
+                    </MudCardContent>
+                </MudCard>
+
+                @* Jeepneys on this route *@
+                <MudCard Elevation="2" Style="border-radius:14px;">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6" Class="fw-bold">Assigned Jeepneys</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudDivider />
+                    <MudCardContent>
+                        @if (!_route.AssignedJeepneys.Any())
+                        {
+                            <MudAlert Severity="Severity.Info" Dense="true">No jeepneys on this route.</MudAlert>
+                        }
+                        else
+                        {
+                            <MudList T="JeepneySummary" Dense="true" DisablePadding="true">
+                                @foreach (var j in _route.AssignedJeepneys)
+                                {
+                                    <MudListItem T="JeepneySummary">
+                                        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                                <MudAvatar Color="Color.Secondary" Size="Size.Small" Variant="Variant.Filled">
+                                                    <MudIcon Icon="@Icons.Material.Filled.DirectionsBus" Size="Size.Small" />
+                                                </MudAvatar>
+                                                <MudStack Spacing="0">
+                                                    <MudText Typo="Typo.body2" Class="fw-bold">@j.PlateNumber</MudText>
+                                                    <MudText Typo="Typo.caption" Class="mud-text-secondary">@j.DriverName</MudText>
+                                                </MudStack>
+                                            </MudStack>
+                                            <MudIconButton Icon="@Icons.Material.Filled.OpenInNew" Size="Size.Small"
+                                                           Href="@($"/jeepneys/{j.Id}")" />
+                                        </MudStack>
+                                    </MudListItem>
+                                }
+                            </MudList>
+                        }
+                    </MudCardContent>
+                </MudCard>
+
+            </MudStack>
+        </MudItem>
+
+        @* ── Right column: stop timeline ── *@
+        <MudItem xs="12" md="8">
+            <MudCard Elevation="2" Style="border-radius:14px;">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6" Class="fw-bold">Stop Sequence</MudText>
+                        <MudText Typo="Typo.body2" Class="mud-text-secondary">Visual timeline of stops along this route.</MudText>
+                    </CardHeaderContent>
+                    <CardHeaderActions>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small"
+                                   StartIcon="@Icons.Material.Filled.Edit" OnClick="OpenManageStopsDialog">
+                            Manage Stops
+                        </MudButton>
+                    </CardHeaderActions>
+                </MudCardHeader>
+                <MudDivider />
+                <MudCardContent>
+                    @if (!_route.Stops.Any())
+                    {
+                        <MudAlert Severity="Severity.Info" Dense="true">No stops defined for this route.</MudAlert>
+                    }
+                    else
+                    {
+                        <MudTimeline TimelinePosition="TimelinePosition.Start" Class="mt-2">
+                            @foreach (var stop in _route.Stops.OrderBy(s => s.StopIndex))
+                            {
+                                bool isFirst = stop.StopIndex == _route.Stops.Min(s => s.StopIndex);
+                                bool isLast = stop.StopIndex == _route.Stops.Max(s => s.StopIndex);
+
+                                <MudTimelineItem Color="@(isFirst || isLast ? Color.Primary : Color.Default)"
+                                                 Size="@(isFirst || isLast ? Size.Medium : Size.Small)"
+                                                 Variant="@(isFirst || isLast ? Variant.Filled : Variant.Outlined)">
+                                    <ItemDot>
+                                        <MudIcon Icon="@(isFirst? Icons.Material.Filled.TripOrigin : isLast? Icons.Material.Filled.Place : Icons.Material.Filled.FiberManualRecord)"
+                                                 Size="Size.Small" />
+                                    </ItemDot>
+                                    <ItemContent>
+                                        <MudStack Spacing="0">
+                                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                                <MudText Typo="Typo.body1" Class="fw-bold">@stop.LocationName</MudText>
+                                                @if (isFirst)
+                                                {
+                                                    <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">Start</MudChip>
+                                                }
+                                                @if (isLast)
+                                                {
+                                                    <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">End</MudChip>
+                                                }
+                                            </MudStack>
+                                            <MudText Typo="Typo.caption" Class="mud-text-secondary">Stop #@stop.StopIndex</MudText>
+                                        </MudStack>
+                                    </ItemContent>
+                                </MudTimelineItem>
+                            }
+                        </MudTimeline>
+                    }
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+    </MudGrid>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private RouteProfileDto? _route;
+    private List<BreadcrumbItem> _breadcrumbs = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Replace with: _route = await RouteService.GetProfileAsync(Id);
+        await Task.Delay(300);
+
+        _route = new RouteProfileDto
+        {
+            Id = Id,
+            RouteCode = "01A",
+            LocationStart = "Ayala Center Cebu",
+            LocationEnd = "Carbon Market",
+            Stops = new List<StopDto>
+            {
+                new() { StopIndex = 0, LocationName = "Ayala Center Cebu" },
+                new() { StopIndex = 1, LocationName = "IT Park" },
+                new() { StopIndex = 2, LocationName = "Colon Street" },
+                new() { StopIndex = 3, LocationName = "Carbon Market" },
+            },
+            AssignedJeepneys = new List<JeepneySummary>
+            {
+                new() { Id = 1, PlateNumber = "ABX 1234", DriverName = "Juan Dela Cruz" },
+                new() { Id = 2, PlateNumber = "CDY 5678", DriverName = "Maria Santos" },
+            }
+        };
+
+        _breadcrumbs = new List<BreadcrumbItem>
+        {
+            new("Routes", href: "/routes"),
+            new(_route.RouteCode, href: null, disabled: true)
+        };
+    }
+
+    private void OpenManageStopsDialog()
+    {
+        // Replace with manage stops dialog or navigate to edit
+    }
+
+    public class RouteProfileDto
+    {
+        public int Id { get; set; }
+        public string RouteCode { get; set; } = string.Empty;
+        public string LocationStart { get; set; } = string.Empty;
+        public string LocationEnd { get; set; } = string.Empty;
+        public List<StopDto> Stops { get; set; } = new();
+        public List<JeepneySummary> AssignedJeepneys { get; set; } = new();
+    }
+
+    public class StopDto
+    {
+        public int StopIndex { get; set; }
+        public string LocationName { get; set; } = string.Empty;
+    }
+
+    public class JeepneySummary
+    {
+        public int Id { get; set; }
+        public string PlateNumber { get; set; } = string.Empty;
+        public string DriverName { get; set; } = string.Empty;
+    }
+}

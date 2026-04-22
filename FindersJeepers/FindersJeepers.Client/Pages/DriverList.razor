@@ -80,7 +80,7 @@ else
 }
 
 @* Add/Edit Dialog *@
-<MudDialog Visible="_dialogVisible" Options="_dialogOptions" >
+<MudDialog Visible="_dialogVisible" Options="_dialogOptions" OnBackdropClick="CloseDialog" >
     <TitleContent>
         <MudText Typo="Typo.h6">@(_isEditing ? "Edit Driver" : "Add Driver")</MudText>
     </TitleContent>
@@ -188,16 +188,7 @@ else
         // Replace with: show MudDialog confirm, then await DriverService.DeleteAsync(driver.Id);
     }
 
-    // DTOs / Form models
-    public class DriverDto
-    {
-        public int Id { get; set; }
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
-        public string LicenseNumber { get; set; } = string.Empty;
-        public string ContactNumber { get; set; } = string.Empty;
-        public DateTime DateHired { get; set; }
-    }
+
 
     public class DriverForm
     {

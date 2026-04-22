@@ -314,25 +314,6 @@ else
         _logDialogVisible = false;
     }
 
-    public class TripDto
-    {
-        public int Id { get; set; }
-        public string PlateNumber { get; set; } = string.Empty;
-        public string RouteCode { get; set; } = string.Empty;
-        public string Status { get; set; } = string.Empty;
-        public DateTime? DepartureTime { get; set; }
-        public DateTime? ArrivalTime { get; set; }
-        public int LogCount { get; set; }
-    }
-
-    public class TripLogDto
-    {
-        public string StopName { get; set; } = string.Empty;
-        public string EventType { get; set; } = string.Empty;
-        public int PassengerCount { get; set; }
-        public DateTime Timestamp { get; set; }
-    }
-
     public class TripForm { public int JeepneyId { get; set; } }
 
     public class LogForm

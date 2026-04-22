@@ -8,6 +8,7 @@
 
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Shared\Shared.csproj" />
     <ProjectReference Include="..\FindersJeepers.Client\FindersJeepers.Client.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.*" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.15" />
@@ -21,7 +22,6 @@
 
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
     <Folder Include="Infrastructure\Repository\Interfaces\" />
   </ItemGroup>
 
