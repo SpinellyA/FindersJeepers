@@ -4,8 +4,3 @@ public class RouteRepository : Repository<Route>, IRouteRepository
     {
     }
 }
-
-public interface IRouteRepository : IRepository<Route>
-{
-
-}

@@ -1,7 +1,10 @@
 ﻿@page "/drivers"
 @rendermode InteractiveAuto
 @inject IDialogService DialogService
+@inject HttpClient Http
 @using MudBlazor
+@inject ISnackbar Snackbar
+
 
 <MudText Typo="Typo.h4" Class="mb-1 fw-bold">Drivers</MudText>
 <MudText Typo="Typo.body2" Class="mb-4 mud-text-secondary">Manage all registered jeepney drivers.</MudText>
@@ -99,7 +102,7 @@ else
                 <MudTextField @bind-Value="_form.ContactNumber" Label="Contact Number" Variant="Variant.Outlined" Required="true" />
             </MudItem>
             <MudItem xs="12">
-                <MudDatePicker @bind-Date="_form.DateHired" Label="Date Hired" Variant="Variant.Outlined" />
+                <MudDatePicker @bind-Date="_form.DateHired" Required="true" Label="Date Hired" Variant="Variant.Outlined" />
             </MudItem>
         </MudGrid>
     </DialogContent>
@@ -114,6 +117,7 @@ else
 <MudText>Dialog: @_dialogVisible</MudText>
 
 @code {
+
 
 
     private string _search = string.Empty;
@@ -138,14 +142,12 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        // Replace with: _drivers = await DriverService.GetAllAsync();
-        await Task.Delay(500);
-        _drivers = new List<GetDriverResponse>
-        {
-            new() { Id = 1, FirstName = "Juan", LastName = "Dela Cruz", LicenseNumber = "A01-23-456789", ContactNumber = "09171234567", DateHired = new DateTime(2021, 3, 15) },
-            new() { Id = 2, FirstName = "Maria", LastName = "Santos", LicenseNumber = "B02-45-678901", ContactNumber = "09281234567", DateHired = new DateTime(2020, 7, 1) },
-            new() { Id = 3, FirstName = "Pedro", LastName = "Reyes", LicenseNumber = "C03-67-890123", ContactNumber = "09391234567", DateHired = new DateTime(2022, 1, 20) },
-        };
+        await LoadData();
+    }
+
+    protected async Task LoadData()
+    {
+        _drivers = await Http.GetFromJsonAsync<List<GetDriverResponse>>("/api/v1/driver/");
     }
 
     private void OpenAddDialog()
@@ -156,7 +158,7 @@ else
 
     }
 
-    private void OpenEditDialog(GetDriverResponse driver)
+    private void OpenEditDialog(GetDriverResponse driver) // change
     {
         _form = new DriverForm
         {
@@ -179,8 +181,30 @@ else
 
     private async Task SaveDriver()
     {
-        // Replace with: await DriverService.SaveAsync(_form);
+
+        var request = new CreateDriverRequest
+            {
+                FirstName = _form.FirstName,
+                LastName = _form.LastName,
+                ContactNumber = _form.ContactNumber,
+                DateHired = (DateTime)_form.DateHired,
+                LicenseNumber = _form.LicenseNumber,
+            };
+
+        var response = await Http.PostAsJsonAsync("/api/v1/driver/", request);
+
+        Console.WriteLine($"Sending date {_form.DateHired.ToString()}");
+
+        if(response.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Successfully added Driver!");
+        } else
+        {
+            Snackbar.Add("Something went wrong.");
+        }
+
         CloseDialog();
+        await LoadData();
     }
 
     private async Task ConfirmDelete(GetDriverResponse driver)

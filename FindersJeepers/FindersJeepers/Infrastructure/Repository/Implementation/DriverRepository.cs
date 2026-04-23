@@ -7,8 +7,3 @@ public class DriverRepository : Repository<Driver>, IDriverRepository
     {
     }
 }
-
-public interface IDriverRepository : IRepository<Driver>
-{
-
-}

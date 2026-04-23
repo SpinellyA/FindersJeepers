@@ -4,8 +4,3 @@ public class LocationRepository : Repository<Location>, ILocationRepository
     {
     }
 }
-
-public interface ILocationRepository : IRepository<Location>
-{
-
-}

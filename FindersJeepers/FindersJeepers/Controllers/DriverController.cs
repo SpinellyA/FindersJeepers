@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-[Route("/api/driver")]
+[Route("/api/v1/driver")]
 public class DriverController : ControllerBase
 {
     private readonly IDriverService _driverService;
@@ -18,6 +18,7 @@ public class DriverController : ControllerBase
         var result = await _driverService.GetAsync();
         return Ok(result);
     }
+
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {

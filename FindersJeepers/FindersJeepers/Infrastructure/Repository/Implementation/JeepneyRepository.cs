@@ -7,8 +7,3 @@ public class JeepneyRepository : Repository<Jeepney>, IJeepneyRepository
     {
     }
 }
-
-public interface IJeepneyRepository : IRepository<Jeepney>
-{
-
-}

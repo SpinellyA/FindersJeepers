@@ -22,6 +22,14 @@ builder.Services.AddApplication()           // LFG YO?
     .AddInfrastructure();
 builder.Services.AddDbContext<MyDbContext>(options => options.UseNpgsql(connectionString));
 
+builder.Services.AddScoped(sp => new HttpClient
+{
+    BaseAddress = new Uri("https://localhost:7139/")
+});
+
+builder.Services.AddControllers();
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -37,7 +45,7 @@ else
 }
 
 app.UseHttpsRedirection();
-
+app.MapControllers();
 
 app.UseAntiforgery();
 

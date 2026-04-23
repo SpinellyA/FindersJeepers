@@ -4,8 +4,3 @@ public class TripRepository : Repository<Trip>, ITripRepository
     {
     }
 }
-
-public interface ITripRepository : IRepository<Trip>
-{
-
-}
