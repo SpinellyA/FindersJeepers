@@ -19,11 +19,24 @@ public record CreateJeepneyRequest
 {
     public string PlateNumber { get; set; } = string.Empty;
     public string BodyNumber { get; set; } = string.Empty;
+    public int Capacity { get; set; }
+    public int RouteId { get; set; }
 }
 
-public record UpdateJeepneyRequest : CreateJeepneyRequest
+public record AssignDriversRequest
+{
+    public int JeepId { get; set; }
+    public List<int> DriverIds { get; set; }
+
+}
+
+public record UpdateJeepneyRequest
 {
     public int Id { get; set; }
+    public string PlateNumber { get; set; } = string.Empty;
+    public string BodyNumber { get; set; } = string.Empty;
+    public int Capacity { get; set; }
+    public int RouteId { get; set; }
 }
 
 public record AssignJeepRequest
@@ -45,4 +58,11 @@ public class UpdateLocationRequest
     public int Id { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
+}
+
+public class CreateRouteRequest
+{
+    public string RouteCode { get; set; }
+    public int StartLocation { get; set; }
+    public int EndLocation { get; set; }
 }

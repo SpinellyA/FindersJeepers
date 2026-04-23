@@ -1,5 +1,7 @@
 ﻿@page "/locations"
 @using MudBlazor
+@inject HttpClient Http
+@inject ISnackbar Snackbar
 
 <MudText Typo="Typo.h4" Class="mb-1 fw-bold">Locations</MudText>
 <MudText Typo="Typo.body2" Class="mb-4 mud-text-secondary">Manage all stop locations in the system.</MudText>
@@ -88,6 +90,9 @@ else
 </MudDialog>
 
 @code {
+
+
+
     private string _search = string.Empty;
     private bool _dialogVisible = false;
     private bool _isEditing = false;
@@ -108,16 +113,14 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        // Replace with: _locations = await LocationService.GetAsync(pageNumber, pageSize);
         await Task.Delay(300);
-        _locations = new List<GetLocationResponse>
-        {
-            new() { Id = 1, Name = "Ayala Center Cebu",  Description = "Main commercial hub in Cebu City." },
-            new() { Id = 2, Name = "Carbon Market",      Description = "Oldest public market in Cebu." },
-            new() { Id = 3, Name = "SM City Cebu",       Description = "Large shopping mall near the North Reclamation Area." },
-            new() { Id = 4, Name = "Colon Street",       Description = "Oldest street in the Philippines." },
-            new() { Id = 5, Name = "IT Park",            Description = "Business process outsourcing district." },
-        };
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        _locations = await Http.GetFromJsonAsync<List<GetLocationResponse>>("/api/v1/locations");
+
     }
 
     private void OpenAddDialog()
@@ -143,13 +146,27 @@ else
 
     private async Task SaveLocation()
     {
-        // Replace with: await LocationService.SaveAsync(_form);
+        var payload = new CreateLocationRequest {
+                Name = _form.Name,
+                Description = _form.Description
+            };
+        var response = await Http.PostAsJsonAsync("/api/v1/locations", payload);
+
+        if(response.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Added location successfully!");
+        } else
+        {
+            Snackbar.Add("Something went wrong.");
+        }
+
+        await LoadData();
+
         CloseDialog();
     }
 
     private async Task ConfirmDelete(GetLocationResponse location)
     {
-        // Replace with: confirm dialog + await LocationService.DeleteAsync(location.Id);
     }
 
     public class LocationForm

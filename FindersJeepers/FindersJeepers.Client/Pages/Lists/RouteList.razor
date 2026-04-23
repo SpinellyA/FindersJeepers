@@ -1,5 +1,7 @@
 ﻿@page "/routes"
 @using MudBlazor
+@inject HttpClient Http
+@inject ISnackbar Snackbar
 
 <MudText Typo="Typo.h4" Class="mb-1 fw-bold">Routes & Stops</MudText>
 <MudText Typo="Typo.body2" Class="mb-4 mud-text-secondary">Define jeepney routes and their stop sequences.</MudText>
@@ -49,7 +51,7 @@ else
                         </CardHeaderContent>
                         <CardHeaderActions>
                             <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small">
-                                <MudMenuItem OnClick="() => OpenStopsPanel(route)">Manage Stops</MudMenuItem>
+                                @* <MudMenuItem OnClick="() => OpenStopsPanel(route)">Manage Stops</MudMenuItem> *@
                                 <MudMenuItem OnClick="() => OpenEditDialog(route)">Edit</MudMenuItem>
                                 <MudMenuItem OnClick="() => ConfirmDelete(route)">
                                     <MudText Color="Color.Error">Delete</MudText>
@@ -90,7 +92,7 @@ else
 @* Add/Edit Route Dialog *@
 <MudDialog Visible="_dialogVisible" Options="_dialogOptions">
     <TitleContent>
-        <MudText Typo="Typo.h6">@(_isEditing ? "Edit Route" : "Add Route")</MudText>
+        <MudText Typo="Typo.h6">Add Route</MudText>
     </TitleContent>
     <DialogContent>
         <MudGrid>
@@ -98,7 +100,7 @@ else
                 <MudTextField @bind-Value="_form.RouteCode" Label="Route Code" Variant="Variant.Outlined" Required="true" />
             </MudItem>
             <MudItem xs="6">
-                <MudSelect @bind-Value="_form.LocationStartId" Label="Start Location" Variant="Variant.Outlined" Required="true">
+                <MudSelect Cleara @bind-Value="_form.LocationStartId" Label="Start Location" Variant="Variant.Outlined" Required="true">
                     @foreach (var loc in _availableLocations)
                     {
                         <MudSelectItem Value="@loc.Id">@loc.Name</MudSelectItem>
@@ -118,13 +120,13 @@ else
     <DialogActions>
         <MudButton OnClick="CloseDialog">Cancel</MudButton>
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveRoute">
-            @(_isEditing ? "Save Changes" : "Add Route")
+            Add Route
         </MudButton>
     </DialogActions>
 </MudDialog>
 
 @* Manage Stops Dialog *@
-<MudDialog Visible="_stopsDialogVisible" Options="_stopsDialogOptions">
+@* <MudDialog Visible="_stopsDialogVisible" Options="_stopsDialogOptions">
     <TitleContent>
         <MudText Typo="Typo.h6">Manage Stops — @_selectedRoute?.RouteCode</MudText>
     </TitleContent>
@@ -158,9 +160,12 @@ else
         <MudButton OnClick="() => _stopsDialogVisible = false">Cancel</MudButton>
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveStops">Save Stops</MudButton>
     </DialogActions>
-</MudDialog>
+</MudDialog> *@
 
 @code {
+
+
+
     private string _search = string.Empty;
     private bool _dialogVisible = false;
     private bool _stopsDialogVisible = false;
@@ -169,7 +174,7 @@ else
     private GetRouteResponse? _selectedRoute;
     private List<EditableStop> _editableStops = new();
     private List<GetRouteResponse>? _routes;
-    private List<LocationOption> _availableLocations = new();
+    private List<GetLocationResponse> _availableLocations = new();
 
     private DialogOptions _dialogOptions = new() { MaxWidth = MaxWidth.Small, FullWidth = true, CloseOnEscapeKey = true };
     private DialogOptions _stopsDialogOptions = new() { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseOnEscapeKey = true };
@@ -182,39 +187,13 @@ else
     protected override async Task OnInitializedAsync()
     {
         await Task.Delay(500);
+        await LoadData();
+    }
 
-        _availableLocations = new List<LocationOption>
-        {
-            new() { Id = 1, Name = "Ayala Center Cebu" },
-            new() { Id = 2, Name = "Carbon Market" },
-            new() { Id = 3, Name = "SM City Cebu" },
-            new() { Id = 4, Name = "Colon Street" },
-            new() { Id = 5, Name = "IT Park" },
-        };
-
-        _routes = new List<GetRouteResponse>
-        {
-            new()
-            {
-                Id = 1, RouteCode = "01A", LocationStart = "Ayala Center Cebu", LocationEnd = "Carbon Market",
-                Stops = new List<RouteStopResponse>
-                {
-                    new() { StopIndex = 0, LocationName = "Ayala Center Cebu" },
-                    new() { StopIndex = 1, LocationName = "IT Park" },
-                    new() { StopIndex = 2, LocationName = "Colon Street" },
-                    new() { StopIndex = 3, LocationName = "Carbon Market" },
-                }
-            },
-            new()
-            {
-                Id = 2, RouteCode = "02B", LocationStart = "SM City Cebu", LocationEnd = "Colon Street",
-                Stops = new List<RouteStopResponse>
-                {
-                    new() { StopIndex = 0, LocationName = "SM City Cebu" },
-                    new() { StopIndex = 1, LocationName = "Colon Street" },
-                }
-            },
-        };
+    private async Task LoadData()
+    {
+        _routes = await Http.GetFromJsonAsync<List<GetRouteResponse>>("/api/v1/routes");
+        _availableLocations = await Http.GetFromJsonAsync<List<GetLocationResponse>>("/api/v1/locations");
     }
 
     private void OpenAddDialog()
@@ -247,15 +226,30 @@ else
 
     private async Task SaveRoute()
     {
-        // Replace with: await RouteService.SaveAsync(_form);
+        var payload = new CreateRouteRequest
+            {
+                RouteCode = _form.RouteCode,
+                StartLocation = _form.LocationStartId,
+                EndLocation = _form.LocationEndId
+            };
+
+        var response = await Http.PostAsJsonAsync("/api/v1/routes", payload);
+
+        if(response.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Added Route successfully!");
+        } else
+        {
+            Snackbar.Add("Something went wrong...");
+        }
         CloseDialog();
     }
 
-    private async Task SaveStops()
-    {
-        // Replace with: await RouteService.UpdateStopsAsync(_selectedRoute.Id, _editableStops);
-        _stopsDialogVisible = false;
-    }
+    // private async Task SaveStops()
+    // {
+    //     Replace with: await RouteService.UpdateStopsAsync(_selectedRoute.Id, _editableStops);
+    //     _stopsDialogVisible = false;
+    // }
 
     private async Task ConfirmDelete(GetRouteResponse route)
     {
@@ -277,5 +271,4 @@ else
         public int StopIndex { get; set; }
     }
 
-    public class LocationOption { public int Id { get; set; } public string Name { get; set; } = string.Empty; }
 }

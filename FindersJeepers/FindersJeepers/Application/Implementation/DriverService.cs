@@ -12,21 +12,9 @@ public class DriverService : IDriverService
 
     public async Task CreateAsync(CreateDriverRequest req)
     {
-        await _uow.BeginTransactionAsync(IsolationLevel.ReadCommitted);
-
-        try
-        {
             var driver = Driver.Create(req.FirstName, req.LastName, req.LicenseNumber, req.ContactNumber, req.DateHired);
             await _uow.Drivers.AddAsync(driver);
             await _uow.SaveChangesAsync();
-            await _uow.CommitAsync();
-        }
-        catch
-        {
-            await _uow.RollbackAsync();
-            throw;
-        }
-
     }
     public async Task<List<GetDriverResponse>> GetAsync(int pageNumber = -1, int pageSize = -1)
     {
@@ -135,6 +123,19 @@ public class DriverService : IDriverService
             AssignedJeepneys = assignedJeepneys,
             TripHistory = tripSummaries
         };
+    }
+
+    public async Task<List<DriverSummary>> GetDriverOptionForJeep(int driverId, int jeepId)
+    {
+        var jeep = await _uow.Jeepneys.GetByIdAsync(jeepId);
+        return await _uow.Drivers.Get()
+            .Where(x => jeep.IsADriver(x.Id))
+            .Select(x => new DriverSummary
+            {
+                Id = x.Id,
+                Name = x.FirstName + " " + x.LastName,
+            })
+            .ToListAsync();
     }
 }
 

@@ -1,0 +1,27 @@
+
+using Microsoft.AspNetCore.Mvc;
+
+[ApiController]
+[Route("/api/v1/jeepneys")]
+public class JeepneyController : ControllerBase
+{
+    private readonly IJeepService jeepService;
+
+    public JeepneyController(IJeepService jeepService)
+    {
+        this.jeepService = jeepService;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetJeepneys()
+    {
+        var result = await jeepService.GetAsync();
+        return Ok(result);
+    }
+    [HttpPost]
+    public async Task<IActionResult> CreateJeepney([FromBody] CreateJeepneyRequest req)
+    {
+        await jeepService.CreateAsync(req);
+        return Created();
+    }
+}

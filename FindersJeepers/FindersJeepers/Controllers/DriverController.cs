@@ -18,6 +18,12 @@ public class DriverController : ControllerBase
         var result = await _driverService.GetAsync();
         return Ok(result);
     }
+    [HttpGet("options")]
+    public async Task<IActionResult> GetDriverOptionsForJeep([FromQuery] int driverId, [FromQuery] int jeepneyId)
+    {
+        var result = await _driverService.GetDriverOptionForJeep(driverId, jeepneyId);
+        return Ok(result);
+    }
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)

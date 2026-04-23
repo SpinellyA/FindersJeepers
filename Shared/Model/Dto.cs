@@ -15,8 +15,15 @@ public class GetJeepneyResponse
     public string PlateNumber { get; set; } = string.Empty;
     public string BodyNumber { get; set; } = string.Empty;
     public int Capacity { get; set; }
-    public string DriverName { get; set; } = string.Empty;
+    public int DriverCount { get; set; } = new();
+    public int TripCount { get; set; } = new();
     public string RouteCode { get; set; } = string.Empty;
+}
+
+public class DriverSummary
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
 }
 
 public class GetRouteResponse
@@ -58,9 +65,8 @@ public class GetJeepneyDetailResponse
     public string BodyNumber { get; set; } = string.Empty;
     public int Capacity { get; set; }
     public string RouteCode { get; set; } = string.Empty;
-    public string DriverName { get; set; } = string.Empty;
-    public int DriverId { get; set; }
     public string CurrentStatus { get; set; } = string.Empty;
+    public List<DriverSummary> AssignedDrivers { get; set; } = new();
     public TripSummaryResponse? CurrentTrip { get; set; }
     public List<TripSummaryResponse> PastTrips { get; set; } = new();
 }

@@ -1,5 +1,7 @@
 ﻿@page "/jeepneys"
 @using MudBlazor
+@inject HttpClient Http
+@inject ISnackbar Snackbar
 
 <MudText Typo="Typo.h4" Class="mb-1 fw-bold">Jeepneys</MudText>
 <MudText Typo="Typo.body2" Class="mb-4 mud-text-secondary">Manage your fleet of jeepneys.</MudText>
@@ -48,7 +50,6 @@ else
                         <CardHeaderActions>
                             <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small">
                                 <MudMenuItem OnClick="() => OpenEditDialog(jeepney)">Edit</MudMenuItem>
-                                <MudMenuItem OnClick="() => OpenChangeDriverDialog(jeepney)">Change Driver</MudMenuItem>
                                 <MudMenuItem OnClick="() => ConfirmDelete(jeepney)">
                                     <MudText Color="Color.Error">Delete</MudText>
                                 </MudMenuItem>
@@ -60,7 +61,7 @@ else
                         <MudStack Spacing="1">
                             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
                                 <MudIcon Icon="@Icons.Material.Filled.Person" Size="Size.Small" Class="mud-text-secondary" />
-                                <MudText Typo="Typo.body2">@jeepney.DriverName</MudText>
+                                <MudText Typo="Typo.body2">Testing</MudText>
                             </MudStack>
                             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
                                 <MudIcon Icon="@Icons.Material.Filled.Route" Size="Size.Small" Class="mud-text-secondary" />
@@ -78,10 +79,9 @@ else
     </MudGrid>
 }
 
-@* Add/Edit Dialog *@
 <MudDialog Visible="_dialogVisible" Options="_dialogOptions">
     <TitleContent>
-        <MudText Typo="Typo.h6">@(_isEditing ? "Edit Jeepney" : "Add Jeepney")</MudText>
+        <MudText Typo="Typo.h6">Add Jeepney</MudText>
     </TitleContent>
     <DialogContent>
         <MudGrid>
@@ -91,18 +91,10 @@ else
             <MudItem xs="6">
                 <MudTextField @bind-Value="_form.BodyNumber" Label="Body Number" Variant="Variant.Outlined" Required="true" />
             </MudItem>
-            <MudItem xs="12">
+            <MudItem xs="6">
                 <MudNumericField @bind-Value="_form.Capacity" Label="Capacity" Variant="Variant.Outlined" Min="1" Required="true" />
             </MudItem>
-            <MudItem xs="12">
-                <MudSelect @bind-Value="_form.DriverId" Label="Assign Driver" Variant="Variant.Outlined" Required="true">
-                    @foreach (var driver in _availableDrivers)
-                    {
-                        <MudSelectItem Value="@driver.Id">@driver.FullName</MudSelectItem>
-                    }
-                </MudSelect>
-            </MudItem>
-            <MudItem xs="12">
+            <MudItem xs="6">
                 <MudSelect @bind-Value="_form.RouteId" Label="Assign Route" Variant="Variant.Outlined" Required="true">
                     @foreach (var route in _availableRoutes)
                     {
@@ -115,27 +107,8 @@ else
     <DialogActions>
         <MudButton OnClick="CloseDialog">Cancel</MudButton>
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveJeepney">
-            @(_isEditing ? "Save Changes" : "Add Jeepney")
+            Add Jeepney
         </MudButton>
-    </DialogActions>
-</MudDialog>
-
-@* Change Driver Dialog *@
-<MudDialog Visible="_changeDriverDialogVisible" Options="_dialogOptions">
-    <TitleContent>
-        <MudText Typo="Typo.h6">Change Driver — @_selectedJeepney?.PlateNumber</MudText>
-    </TitleContent>
-    <DialogContent>
-        <MudSelect @bind-Value="_newDriverId" Label="New Driver" Variant="Variant.Outlined">
-            @foreach (var driver in _availableDrivers)
-            {
-                <MudSelectItem Value="@driver.Id">@driver.FullName</MudSelectItem>
-            }
-        </MudSelect>
-    </DialogContent>
-    <DialogActions>
-        <MudButton OnClick="() => _changeDriverDialogVisible = false">Cancel</MudButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveDriverChange">Confirm</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -146,10 +119,8 @@ else
     private bool _isEditing = false;
     private JeepneyForm _form = new();
     private GetJeepneyResponse? _selectedJeepney;
-    private int _newDriverId;
     private List<GetJeepneyResponse>? _jeepneys;
-    private List<DriverOption> _availableDrivers = new();
-    private List<RouteOption> _availableRoutes = new();
+    private List<RouteSummaryResponse> _availableRoutes = new();
 
     private DialogOptions _dialogOptions = new()
     {
@@ -167,26 +138,15 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        // Replace with actual service calls
         await Task.Delay(500);
+        await LoadData();
 
-        _availableDrivers = new List<DriverOption>
-        {
-            new() { Id = 1, FullName = "Juan Dela Cruz" },
-            new() { Id = 2, FullName = "Maria Santos" },
-        };
+    }
 
-        _availableRoutes = new List<RouteOption>
-        {
-            new() { Id = 1, RouteCode = "01A - Ayala-Carbon" },
-            new() { Id = 2, RouteCode = "02B - SM-Colon" },
-        };
-
-        _jeepneys = new List<GetJeepneyResponse>
-        {
-            new() { Id = 1, PlateNumber = "ABX 1234", BodyNumber = "001", Capacity = 16, DriverName = "Juan Dela Cruz", RouteCode = "01A - Ayala-Carbon" },
-            new() { Id = 2, PlateNumber = "CDY 5678", BodyNumber = "002", Capacity = 18, DriverName = "Maria Santos", RouteCode = "02B - SM-Colon" },
-        };
+    private async Task LoadData()
+    {
+        _jeepneys = await Http.GetFromJsonAsync<List<GetJeepneyResponse>>("/api/v1/jeepneys");
+        _availableRoutes = await Http.GetFromJsonAsync<List<RouteSummaryResponse>>("/api/v1/routes/");
     }
 
     private void OpenAddDialog()
@@ -209,18 +169,28 @@ else
         _dialogVisible = true;
     }
 
-    private void OpenChangeDriverDialog(GetJeepneyResponse jeepney)
-    {
-        _selectedJeepney = jeepney;
-        _newDriverId = 0;
-        _changeDriverDialogVisible = true;
-    }
-
     private void CloseDialog() => _dialogVisible = false;
 
     private async Task SaveJeepney()
     {
-        // Replace with: await JeepneyService.SaveAsync(_form);
+        var payload = new CreateJeepneyRequest
+            {
+                Capacity = _form.Capacity,
+                RouteId = _form.RouteId,
+                BodyNumber = _form.BodyNumber,
+                PlateNumber = _form.PlateNumber
+            };
+        var response = await Http.PostAsJsonAsync("/api/v1/jeepneys", payload);
+
+        if(response.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Jeepney added!");
+        } else
+        {
+            Snackbar.Add("Something went wrong.");
+        }
+        await LoadData();
+
         CloseDialog();
     }
 
@@ -241,10 +211,8 @@ else
         public string PlateNumber { get; set; } = string.Empty;
         public string BodyNumber { get; set; } = string.Empty;
         public int Capacity { get; set; }
-        public int DriverId { get; set; }
         public int RouteId { get; set; }
     }
 
-    public class DriverOption { public int Id { get; set; } public string FullName { get; set; } = string.Empty; }
     public class RouteOption { public int Id { get; set; } public string RouteCode { get; set; } = string.Empty; }
 }
