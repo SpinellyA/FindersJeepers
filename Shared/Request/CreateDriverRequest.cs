@@ -22,3 +22,13 @@ public record CreateJeepneyRequest
 
 }
 
+public record UpdateJeepneyRequest
+{
+
+}
+
+public record AssignJeepRequest
+{
+    public int DriverId { get; set; }
+    public int JeepId { get; set; }
+}

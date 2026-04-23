@@ -92,7 +92,7 @@ public class DriverService : IDriverService
         if (jeepney != null)
         {
             route = await routeQuery.FirstOrDefaultAsync(x => x.Id == jeepney.RouteId);
-            trips = await tripQuery.Where(x => x.JeepneyId == jeepney.Id)
+            trips = await tripQuery.Where(x => x.JeepneyId == jeepney.Id && x.DriverId == driver.Id)
                     .Select(x => new TripSummaryResponse
                     {
                         Id = x.Id,

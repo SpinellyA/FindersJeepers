@@ -1,0 +1,161 @@
+﻿@page "/locations"
+@using MudBlazor
+
+<MudText Typo="Typo.h4" Class="mb-1 fw-bold">Locations</MudText>
+<MudText Typo="Typo.body2" Class="mb-4 mud-text-secondary">Manage all stop locations in the system.</MudText>
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-4" Justify="Justify.SpaceBetween">
+    <MudTextField @bind-Value="_search"
+                  Placeholder="Search by name..."
+                  Adornment="Adornment.Start"
+                  AdornmentIcon="@Icons.Material.Filled.Search"
+                  Variant="Variant.Outlined"
+                  Margin="Margin.Dense"
+                  Style="max-width:320px;" />
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.AddLocationAlt"
+               OnClick="OpenAddDialog">
+        Add Location
+    </MudButton>
+</MudStack>
+
+@if (_locations is null)
+{
+    <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+}
+else if (!FilteredLocations.Any())
+{
+    <MudAlert Severity="Severity.Info">No locations found.</MudAlert>
+}
+else
+{
+    <MudGrid Spacing="3">
+        @foreach (var location in FilteredLocations)
+        {
+            <MudItem xs="12" sm="6" md="4" lg="3">
+                <MudCard Elevation="2" Style="border-radius:12px;">
+                    <MudCardHeader>
+                        <CardHeaderAvatar>
+                            <MudAvatar Color="Color.Primary" Size="Size.Large" Variant="Variant.Filled">
+                                <MudIcon Icon="@Icons.Material.Filled.LocationOn" />
+                            </MudAvatar>
+                        </CardHeaderAvatar>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.subtitle1" Class="fw-bold">@location.Name</MudText>
+                            <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                                @(string.IsNullOrWhiteSpace(location.Description) ? "No description." : location.Description)
+                            </MudText>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small">
+                                <MudMenuItem Href="@($"/locations/{location.Id}")">View Profile</MudMenuItem>
+                                <MudMenuItem OnClick="() => OpenEditDialog(location)">Edit</MudMenuItem>
+                                <MudMenuItem OnClick="() => ConfirmDelete(location)">
+                                    <MudText Color="Color.Error">Delete</MudText>
+                                </MudMenuItem>
+                            </MudMenu>
+                        </CardHeaderActions>
+                    </MudCardHeader>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+}
+
+@* Add/Edit Dialog *@
+<MudDialog @bind-IsVisible="_dialogVisible" Options="_dialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">@(_isEditing ? "Edit Location" : "Add Location")</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="_form.Name" Label="Name" Variant="Variant.Outlined" Required="true" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="_form.Description" Label="Description" Variant="Variant.Outlined"
+                              Lines="3" AutoGrow="true" />
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseDialog">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveLocation">
+            @(_isEditing ? "Save Changes" : "Add Location")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private string _search = string.Empty;
+    private bool _dialogVisible = false;
+    private bool _isEditing = false;
+    private LocationForm _form = new();
+    private List<GetLocationResponse>? _locations;
+
+    private DialogOptions _dialogOptions = new()
+    {
+        MaxWidth = MaxWidth.Small,
+        FullWidth = true,
+        CloseOnEscapeKey = true
+    };
+
+    private IEnumerable<GetLocationResponse> FilteredLocations => _locations?
+        .Where(l => string.IsNullOrWhiteSpace(_search) ||
+                    l.Name.Contains(_search, StringComparison.OrdinalIgnoreCase))
+        ?? Enumerable.Empty<GetLocationResponse>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Replace with: _locations = await LocationService.GetAsync(pageNumber, pageSize);
+        await Task.Delay(300);
+        _locations = new List<GetLocationResponse>
+        {
+            new() { Id = 1, Name = "Ayala Center Cebu",  Description = "Main commercial hub in Cebu City." },
+            new() { Id = 2, Name = "Carbon Market",      Description = "Oldest public market in Cebu." },
+            new() { Id = 3, Name = "SM City Cebu",       Description = "Large shopping mall near the North Reclamation Area." },
+            new() { Id = 4, Name = "Colon Street",       Description = "Oldest street in the Philippines." },
+            new() { Id = 5, Name = "IT Park",            Description = "Business process outsourcing district." },
+        };
+    }
+
+    private void OpenAddDialog()
+    {
+        _form = new LocationForm();
+        _isEditing = false;
+        _dialogVisible = true;
+    }
+
+    private void OpenEditDialog(GetLocationResponse location)
+    {
+        _form = new LocationForm
+        {
+            Id = location.Id,
+            Name = location.Name,
+            Description = location.Description
+        };
+        _isEditing = true;
+        _dialogVisible = true;
+    }
+
+    private void CloseDialog() => _dialogVisible = false;
+
+    private async Task SaveLocation()
+    {
+        // Replace with: await LocationService.SaveAsync(_form);
+        CloseDialog();
+    }
+
+    private async Task ConfirmDelete(GetLocationResponse location)
+    {
+        // Replace with: confirm dialog + await LocationService.DeleteAsync(location.Id);
+    }
+
+    public class LocationForm
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+    }
+}

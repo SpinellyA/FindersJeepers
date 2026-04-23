@@ -124,3 +124,34 @@ public class GetTripDetailResponse
     public DateTime? ArrivalTime { get; set; }
     public List<GetTripLogResponse> Logs { get; set; } = new();
 }
+
+public class GetLocationResponse
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+}
+
+public class GetLocationDetailResponse
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public List<RouteSummaryResponse> Routes { get; set; } = new();
+    public List<RouteStopOccurrenceResponse> StopOccurrences { get; set; } = new();
+}
+
+public class RouteSummaryResponse
+{
+    public int Id { get; set; }
+    public string RouteCode { get; set; } = string.Empty;
+    public string LocationStart { get; set; } = string.Empty;
+    public string LocationEnd { get; set; } = string.Empty;
+}
+
+public class RouteStopOccurrenceResponse
+{
+    public int RouteId { get; set; }
+    public string RouteCode { get; set; } = string.Empty;
+    public int StopIndex { get; set; }
+}

@@ -1,4 +1,6 @@
 ﻿@page "/drivers/{Id:int}"
+@inject HttpClient Http
+@inject ISnackbar Snackbar
 @using MudBlazor
 
 @if (_driver is null)
@@ -151,29 +153,7 @@ else
         // Replace with: _driver = await DriverService.GetProfileAsync(Id);
         await Task.Delay(300);
 
-        _driver = new GetDriverDetailResponse
-        {
-            Id = Id,
-            FirstName = "Juan",
-            LastName = "Dela Cruz",
-            LicenseNumber = "A01-23-456789",
-            ContactNumber = "09171234567",
-            DateHired = new DateTime(2021, 3, 15),
-            AssignedJeepney = new JeepneySummaryResponse
-            {
-                Id = 1,
-                PlateNumber = "ABX 1234",
-                BodyNumber = "001",
-                Capacity = 16,
-                RouteCode = "01A"
-            },
-            TripHistory = new List<TripSummaryResponse>
-            {
-                new() { Id = 1, RouteCode = "01A", Status = "Completed", DepartureTime = DateTime.Now.AddDays(-1).AddHours(-3), ArrivalTime = DateTime.Now.AddDays(-1).AddHours(-1) },
-                new() { Id = 3, RouteCode = "01A", Status = "Completed", DepartureTime = DateTime.Now.AddDays(-2).AddHours(-4), ArrivalTime = DateTime.Now.AddDays(-2).AddHours(-2) },
-                new() { Id = 5, RouteCode = "01A", Status = "OnGoing", DepartureTime = DateTime.Now.AddHours(-1), ArrivalTime = null },
-            }
-        };
+        _driver = await Http.GetFromJsonAsync<GetDriverDetailResponse>($"/api/v1/driver/{Id}");
 
         _breadcrumbs = new List<BreadcrumbItem>
         {

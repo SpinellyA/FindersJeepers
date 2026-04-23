@@ -1,6 +1,7 @@
 ﻿@page "/drivers"
 @rendermode InteractiveAuto
 @inject IDialogService DialogService
+@inject NavigationManager NavigationManager
 @inject HttpClient Http
 @using MudBlazor
 @inject ISnackbar Snackbar
@@ -36,50 +37,62 @@ else if (!FilteredDrivers.Any())
 else
 {
     <MudGrid Spacing="3">
-        @foreach (var driver in FilteredDrivers)
-        {
-            <MudItem xs="12" sm="6" md="4" lg="3">
-                <MudCard Elevation="2" Style="border-radius:12px;">
-                    <MudCardHeader>
-                        <CardHeaderAvatar>
+    @foreach (var driver in FilteredDrivers)
+    {
+        <MudItem xs="12" sm="6" md="4" lg="3">
+            <MudCard Elevation="2" 
+                     @onclick="() => NavigateToDriver(driver.Id)"
+                     Hover="true"
+                     Class="cursor-pointer transition-card"
+                     Style="border-radius:12px;">
+                <MudCardHeader>
+                    <CardHeaderAvatar>
+                        @* stop propagation prevents card navigation avatar *@
+                        <div @onclick:stopPropagation="true">
                             <MudAvatar Color="Color.Primary" Size="Size.Large">
                                 @driver.FirstName[0]@driver.LastName[0]
                             </MudAvatar>
-                        </CardHeaderAvatar>
-                        <CardHeaderContent>
-                            <MudText Typo="Typo.subtitle1" Class="fw-bold">
-                                @driver.FirstName @driver.LastName
-                            </MudText>
-                            <MudText Typo="Typo.caption" Class="mud-text-secondary">
-                                @driver.LicenseNumber
-                            </MudText>
-                        </CardHeaderContent>
-                        <CardHeaderActions>
+                        </div>
+                    </CardHeaderAvatar>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.subtitle1" Class="fw-bold">
+                            @driver.FirstName @driver.LastName
+                        </MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                            @driver.LicenseNumber
+                        </MudText>
+                    </CardHeaderContent>
+                    <CardHeaderActions>
+                        @* so the menu doesnt trigger the card click *@
+                        <div @onclick:stopPropagation="true">
                             <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small">
                                 <MudMenuItem OnClick="() => OpenEditDialog(driver)">Edit</MudMenuItem>
                                 <MudMenuItem OnClick="() => ConfirmDelete(driver)">
                                     <MudText Color="Color.Error">Delete</MudText>
                                 </MudMenuItem>
                             </MudMenu>
-                        </CardHeaderActions>
-                    </MudCardHeader>
-                    <MudDivider />
-                    <MudCardContent Class="pt-3">
-                        <MudStack Spacing="1">
-                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-                                <MudIcon Icon="@Icons.Material.Filled.Phone" Size="Size.Small" Class="mud-text-secondary" />
-                                <MudText Typo="Typo.body2">@driver.ContactNumber</MudText>
-                            </MudStack>
-                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-                                <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Size="Size.Small" Class="mud-text-secondary" />
-                                <MudText Typo="Typo.body2">Hired @driver.DateHired.ToString("MMM dd, yyyy")</MudText>
-                            </MudStack>
+                        </div>
+                    </CardHeaderActions>
+                </MudCardHeader>
+                
+                <MudDivider />
+                
+                <MudCardContent Class="pt-3">
+                    <MudStack Spacing="1">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                            <MudIcon Icon="@Icons.Material.Filled.Phone" Size="Size.Small" Class="mud-text-secondary" />
+                            <MudText Typo="Typo.body2">@driver.ContactNumber</MudText>
                         </MudStack>
-                    </MudCardContent>
-                </MudCard>
-            </MudItem>
-        }
-    </MudGrid>
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                            <MudIcon Icon="@Icons.Material.Filled.CalendarToday" Size="Size.Small" Class="mud-text-secondary" />
+                            <MudText Typo="Typo.body2">Hired @driver.DateHired.ToString("MMM dd, yyyy")</MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    }
+</MudGrid>
 }
 
 @* Add/Edit Dialog *@
@@ -117,9 +130,6 @@ else
 <MudText>Dialog: @_dialogVisible</MudText>
 
 @code {
-
-
-
     private string _search = string.Empty;
     private bool _dialogVisible = false;
     private bool _isEditing = false;
@@ -144,6 +154,13 @@ else
     {
         await LoadData();
     }
+
+    @code {
+    private void NavigateToDriver(int driverId)
+    {
+        NavigationManager.NavigateTo($"/drivers/{driverId}");
+    }
+}
 
     protected async Task LoadData()
     {
@@ -209,7 +226,7 @@ else
 
     private async Task ConfirmDelete(GetDriverResponse driver)
     {
-        // Replace with: show MudDialog confirm, then await DriverService.DeleteAsync(driver.Id);
+
     }
 
 
