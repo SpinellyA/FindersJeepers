@@ -64,7 +64,7 @@ else
 }
 
 @* Add/Edit Dialog *@
-<MudDialog @bind-IsVisible="_dialogVisible" Options="_dialogOptions">
+<MudDialog Visible="_dialogVisible" Options="_dialogOptions">
     <TitleContent>
         <MudText Typo="Typo.h6">@(_isEditing ? "Edit Location" : "Add Location")</MudText>
     </TitleContent>

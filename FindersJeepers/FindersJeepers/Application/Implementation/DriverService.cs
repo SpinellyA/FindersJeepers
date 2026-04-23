@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using System.Data;
 public class DriverService : IDriverService
 {
@@ -8,6 +9,7 @@ public class DriverService : IDriverService
     {
         _uow = uow;
     }
+
     public async Task CreateAsync(CreateDriverRequest req)
     {
         await _uow.BeginTransactionAsync(IsolationLevel.ReadCommitted);
@@ -77,33 +79,50 @@ public class DriverService : IDriverService
     {
         var driver = await _uow.Drivers.GetByIdAsync(driverId);
         if (driver == null) throw new InvalidIdException("Invalid driver ID!");
+        var jeepneyData = await _uow.Jeepneys.Get()
+            .Where(j => j.Drivers.Any(d => d.DriverId == driverId && d.UnassignedAt == null))
+            .Join(_uow.Routes.Get(),
+                j => j.RouteId,
+                r => r.Id,
+                (j, r) => new { Jeepney = j, Route = r })
+            .ToListAsync();
+        var assignedJeepneys = jeepneyData
+            .Select(x => new JeepneySummaryResponse
+            {
+                Id = x.Jeepney.Id,
+                PlateNumber = x.Jeepney.PlateNumber,
+                BodyNumber = x.Jeepney.BodyNumber,
+                Capacity = x.Jeepney.Capacity,
+                DriverName = driver.FirstName + " " + driver.LastName,
+                RouteCode = x.Route.RouteCode
+            })
+            .ToList();
+        var jeepneyIds = jeepneyData.Select(x => x.Jeepney.Id).ToList();
+        var routesByJeepneyId = jeepneyData.ToDictionary(x => x.Jeepney.Id, x => x.Route.RouteCode);
+        var trips = await _uow.Trips.Get()
+            .Where(t => jeepneyIds.Contains(t.JeepneyId))
+            .Select(t => new
+            {
+                t.Id,
+                t.JeepneyId,
+                t.ArrivalTime,
+                t.DepartureTime,
+                t.Status,
+                LogCount = t.Logs.Count
+            })
+            .ToListAsync();
 
-        // this can actually be improved with single query.
-        var jeepQuery = _uow.Jeepneys.Get();
-        var routeQuery = _uow.Routes.Get();
-        var tripQuery = _uow.Trips.Get();
-
-        var jeepney = await jeepQuery.FirstOrDefaultAsync(x => x.DriverId == driver.Id);
-
-        Route? route = null;                    // start as null first
-        List<TripSummaryResponse>? trips = new();
-
-
-        if (jeepney != null)
-        {
-            route = await routeQuery.FirstOrDefaultAsync(x => x.Id == jeepney.RouteId);
-            trips = await tripQuery.Where(x => x.JeepneyId == jeepney.Id && x.DriverId == driver.Id)
-                    .Select(x => new TripSummaryResponse
-                    {
-                        Id = x.Id,
-                        ArrivalTime = x.ArrivalTime,
-                        DepartureTime = x.DepartureTime,
-                        LogCount = x.Logs.Count,
-                        RouteCode = route == null ? null : route.RouteCode,
-                        Status = x.Status.ToString()
-                    })
-                    .ToListAsync();
-        }
+        var tripSummaries = trips
+            .Select(t => new TripSummaryResponse
+            {
+                Id = t.Id,
+                ArrivalTime = t.ArrivalTime,
+                DepartureTime = t.DepartureTime,
+                LogCount = t.LogCount,
+                RouteCode = routesByJeepneyId.GetValueOrDefault(t.JeepneyId, string.Empty),
+                Status = t.Status.ToString()
+            })
+            .ToList();
 
         return new GetDriverDetailResponse
         {
@@ -113,19 +132,9 @@ public class DriverService : IDriverService
             ContactNumber = driver.ContactNumber,
             LicenseNumber = driver.LicenseNumber,
             DateHired = driver.DateHired,
-
-            TripHistory = trips,
-
-            AssignedJeepney = jeepney == null ? null : new JeepneySummaryResponse
-            {
-                BodyNumber = jeepney.BodyNumber,
-                Capacity = jeepney.Capacity,
-                DriverName = driver.FirstName + " " + driver.LastName,
-                PlateNumber = jeepney.PlateNumber,
-                RouteCode = route.RouteCode
-            },
+            AssignedJeepneys = assignedJeepneys,
+            TripHistory = tripSummaries
         };
-
     }
 }
 

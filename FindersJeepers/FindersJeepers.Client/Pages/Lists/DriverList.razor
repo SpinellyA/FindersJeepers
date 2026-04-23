@@ -164,7 +164,7 @@ else
 
     protected async Task LoadData()
     {
-        _drivers = await Http.GetFromJsonAsync<List<GetDriverResponse>>("/api/v1/driver/");
+        _drivers = await Http.GetFromJsonAsync<List<GetDriverResponse>>("/api/v1/drivers/");
     }
 
     private void OpenAddDialog()
@@ -208,7 +208,7 @@ else
                 LicenseNumber = _form.LicenseNumber,
             };
 
-        var response = await Http.PostAsJsonAsync("/api/v1/driver/", request);
+        var response = await Http.PostAsJsonAsync("/api/v1/drivers/", request);
 
         Console.WriteLine($"Sending date {_form.DateHired.ToString()}");
 

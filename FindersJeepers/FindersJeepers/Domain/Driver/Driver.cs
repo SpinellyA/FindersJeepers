@@ -1,9 +1,9 @@
 public class Driver : AggregateRoot
 {
-    public int Id { get; private set; }
+    public int Id { get; private set; } // primary key
     public string FirstName { get; private set; }
     public string LastName { get; private set; }
-    public string LicenseNumber { get; private set; }
+    public string LicenseNumber { get; private set; } // alternate key
     public string ContactNumber { get; private set; }
     public DateTime DateHired {  get; private set; }
     private Driver()

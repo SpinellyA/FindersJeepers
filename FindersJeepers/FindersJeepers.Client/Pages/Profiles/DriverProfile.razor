@@ -54,37 +54,45 @@ else
         <MudItem xs="12" md="8">
             <MudStack Spacing="4">
 
-                @* Assigned Jeepney *@
+                @* Assigned Jeepneys *@
                 <MudCard Elevation="2" Style="border-radius:14px;">
                     <MudCardHeader>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.h6" Class="fw-bold">Assigned Jeepney</MudText>
+                            <MudText Typo="Typo.h6" Class="fw-bold">Assigned Jeepneys</MudText>
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudDivider />
                     <MudCardContent>
-                        @if (_driver.AssignedJeepney is null)
+                        @if (_driver.AssignedJeepneys is null || !_driver.AssignedJeepneys.Any())
                         {
                             <MudAlert Severity="Severity.Info" Dense="true">No jeepney currently assigned to this driver.</MudAlert>
                         }
                         else
                         {
-                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
-                                <MudAvatar Color="Color.Secondary" Variant="Variant.Filled" Size="Size.Large">
-                                    <MudIcon Icon="@Icons.Material.Filled.DirectionsBus" />
-                                </MudAvatar>
-                                <MudStack Spacing="0">
-                                    <MudText Typo="Typo.subtitle1" Class="fw-bold">@_driver.AssignedJeepney.PlateNumber</MudText>
-                                    <MudText Typo="Typo.body2" Class="mud-text-secondary">
-                                        Body #@_driver.AssignedJeepney.BodyNumber · Capacity: @_driver.AssignedJeepney.Capacity · Route: @_driver.AssignedJeepney.RouteCode
-                                    </MudText>
-                                </MudStack>
-                                <MudSpacer />
-                                <MudButton Variant="Variant.Text" Color="Color.Primary"
-                                           Href="@($"/jeepneys/{_driver.AssignedJeepney.Id}")">
-                                    View
-                                </MudButton>
-                            </MudStack>
+                            <MudList T="JeepneySummaryResponse" DisablePadding="true">
+                                @foreach (var jeepney in _driver.AssignedJeepneys)
+                                {
+                                    <MudListItem T="JeepneySummaryResponse">
+                                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                                            <MudAvatar Color="Color.Secondary" Variant="Variant.Filled" Size="Size.Medium">
+                                                <MudIcon Icon="@Icons.Material.Filled.DirectionsBus" />
+                                            </MudAvatar>
+                                            <MudStack Spacing="0">
+                                                <MudText Typo="Typo.subtitle1" Class="fw-bold">@jeepney.PlateNumber</MudText>
+                                                <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                                                    Body #@jeepney.BodyNumber · Capacity: @jeepney.Capacity · Route: @jeepney.RouteCode
+                                                </MudText>
+                                            </MudStack>
+                                            <MudSpacer />
+                                            <MudButton Variant="Variant.Text" Color="Color.Primary"
+                                                       Href="@($"/jeepneys/{jeepney.Id}")">
+                                                View
+                                            </MudButton>
+                                        </MudStack>
+                                    </MudListItem>
+                                    <MudDivider />
+                                }
+                            </MudList>
                         }
                     </MudCardContent>
                 </MudCard>
@@ -150,10 +158,9 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        // Replace with: _driver = await DriverService.GetProfileAsync(Id);
         await Task.Delay(300);
 
-        _driver = await Http.GetFromJsonAsync<GetDriverDetailResponse>($"/api/v1/driver/{Id}");
+        _driver = await Http.GetFromJsonAsync<GetDriverDetailResponse>($"/api/v1/drivers/{Id}");
 
         _breadcrumbs = new List<BreadcrumbItem>
         {

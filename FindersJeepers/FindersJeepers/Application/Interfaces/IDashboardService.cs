@@ -1,4 +1,5 @@
-﻿public interface IDashboardService
+﻿
+public interface IDashboardService
 {
 
 }

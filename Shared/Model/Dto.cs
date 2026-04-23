@@ -47,7 +47,7 @@ public class GetDriverDetailResponse
     public string LicenseNumber { get; set; } = string.Empty;
     public string ContactNumber { get; set; } = string.Empty;
     public DateTime DateHired { get; set; }
-    public JeepneySummaryResponse? AssignedJeepney { get; set; }
+    public List<JeepneySummaryResponse>? AssignedJeepneys { get; set; }
     public List<TripSummaryResponse> TripHistory { get; set; } = new();
 }
 
