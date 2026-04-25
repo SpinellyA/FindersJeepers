@@ -60,7 +60,7 @@ public class DriverService : IDriverService
 
     public async Task UpdateAsync(UpdateDriverRequest request)
     {
-        throw new NotImplementedException();
+        var driver = await _uow.Drivers.GetByIdAsync(request.Id);
     }
 
     public async Task<GetDriverDetailResponse> GetByIdAsync(int driverId)
@@ -75,7 +75,7 @@ public class DriverService : IDriverService
                 (j, r) => new { Jeepney = j, Route = r })
             .ToListAsync();
         var assignedJeepneys = jeepneyData
-            .Select(x => new JeepneySummaryResponse
+            .Select(x => new GetJeepneySummaryResponse
             {
                 Id = x.Jeepney.Id,
                 PlateNumber = x.Jeepney.PlateNumber,
@@ -101,7 +101,7 @@ public class DriverService : IDriverService
             .ToListAsync();
 
         var tripSummaries = trips
-            .Select(t => new TripSummaryResponse
+            .Select(t => new GetTripSummaryResponse
             {
                 Id = t.Id,
                 ArrivalTime = t.ArrivalTime,
@@ -125,17 +125,6 @@ public class DriverService : IDriverService
         };
     }
 
-    public async Task<List<DriverSummary>> GetDriverOptionForJeep(int driverId, int jeepId)
-    {
-        var jeep = await _uow.Jeepneys.GetByIdAsync(jeepId);
-        return await _uow.Drivers.Get()
-            .Where(x => jeep.IsADriver(x.Id))
-            .Select(x => new DriverSummary
-            {
-                Id = x.Id,
-                Name = x.FirstName + " " + x.LastName,
-            })
-            .ToListAsync();
-    }
+    
 }
 
