@@ -67,9 +67,9 @@ else
                         <div @onclick:stopPropagation="true">
                             <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small">
                                 <MudMenuItem OnClick="() => OpenEditDialog(driver)">Edit</MudMenuItem>
-                                <MudMenuItem OnClick="() => ConfirmDelete(driver)">
+                                @* <MudMenuItem OnClick="() => ConfirmDelete(driver)">
                                     <MudText Color="Color.Error">Delete</MudText>
-                                </MudMenuItem>
+                                </MudMenuItem> *@
                             </MudMenu>
                         </div>
                     </CardHeaderActions>
@@ -122,7 +122,7 @@ else
     <DialogActions>
         <MudButton OnClick="CloseDialog">Cancel</MudButton>
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveDriver">
-            @(_isEditing ? "Save Changes" : "Add Driver")
+            Add Driver
         </MudButton>
     </DialogActions>
 </MudDialog>
@@ -222,11 +222,6 @@ else
 
         CloseDialog();
         await LoadData();
-    }
-
-    private async Task ConfirmDelete(GetDriverResponse driver)
-    {
-
     }
 
 

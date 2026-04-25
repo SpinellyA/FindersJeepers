@@ -31,6 +31,19 @@ public class Driver : AggregateRoot
         };
     }
 
+    public void UpdateInformation(string fName, string lName, string licenseNumber, string contactNumber)
+    {
+        if (string.IsNullOrWhiteSpace(fName)) throw new DomainException("First Name cannot be empty!");
+        if (string.IsNullOrWhiteSpace(lName)) throw new DomainException("Last Name cannot be empty!");
+        if (string.IsNullOrWhiteSpace(licenseNumber)) throw new DomainException("A driver must have a license number!");
+        if (!IsValidContactNumber(contactNumber)) throw new DomainException("Invalid contact number!");
+
+        FirstName = fName;
+        LastName = lName;
+        LicenseNumber = licenseNumber;
+        ContactNumber = contactNumber;
+    }
+
     private static bool IsValidContactNumber(string number)
     {
         // use regex to validate number here

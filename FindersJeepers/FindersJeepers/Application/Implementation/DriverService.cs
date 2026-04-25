@@ -61,6 +61,10 @@ public class DriverService : IDriverService
     public async Task UpdateAsync(UpdateDriverRequest request)
     {
         var driver = await _uow.Drivers.GetByIdAsync(request.Id);
+        driver.UpdateInformation(request.FirstName, request.LastName, request.LicenseNumber, request.ContactNumber);
+
+        _uow.Drivers.Update(driver);
+        await _uow.SaveChangesAsync();
     }
 
     public async Task<GetDriverDetailResponse> GetByIdAsync(int driverId)
