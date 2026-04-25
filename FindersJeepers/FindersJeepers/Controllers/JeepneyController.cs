@@ -30,11 +30,4 @@ public class JeepneyController : ControllerBase
         await jeepService.CreateAsync(req);
         return Created();
     }
-
-    [HttpPut("")]
-    public async Task<IActionResult> AssignDrivers([FromBody] AssignDriversRequest req)
-    {
-        await jeepService.AssignDriversAsync(req);
-        return Ok();
-    }
 }
