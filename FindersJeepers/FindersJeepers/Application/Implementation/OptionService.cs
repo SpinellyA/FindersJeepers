@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.InteropServices;
+using System.Xml.Linq;
 
 /// <summary>
 /// // This service is responsible for the queries and processing of option DTOs.
@@ -40,7 +41,7 @@ public class OptionService : IOptionService
 
         return await (from j in _uow.Jeepneys.Get()
                       join r in _uow.Routes.Get() on j.RouteId equals r.Id
-                      where j.Drivers.Any(x => x.DriverId == driverId)
+                      where !j.Drivers.Any(x => x.DriverId == driverId && x.UnassignedAt == null)
                       select new JeepneyOption
                       {
                           Id = j.Id,
