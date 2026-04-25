@@ -39,7 +39,7 @@
 
         _theme = new()
         {
-            PaletteLight = _myPalette,
+            PaletteLight = _CloudPalette,
             PaletteDark = _darkPalette,
             LayoutProperties = new LayoutProperties(),
         };
@@ -151,6 +151,168 @@
     private readonly PaletteLight _myPaletteDark = new()
     {
 
+    };
+
+    private readonly PaletteLight _CloudPalette = new()
+    {
+                // ── Primary: deep navy ──
+        Primary = "#1B2A4A",
+        PrimaryDarken = "#111D33",
+        PrimaryLighten = "#2E4270",
+        PrimaryContrastText = "#FFFFFF",
+
+        // ── Secondary: warm amber ──
+        Secondary = "#F5A623",
+        SecondaryDarken = "#D4891A",
+        SecondaryLighten = "#F7BC5A",
+        SecondaryContrastText = "#1B2A4A",
+
+        // ── Tertiary: muted teal ──
+        Tertiary = "#2E7D82",
+        TertiaryDarken = "#1F5C60",
+        TertiaryLighten = "#4A9EA4",
+        TertiaryContrastText = "#FFFFFF",
+
+        // ── Semantic ──
+        Success = "#2E7D52",
+        Warning = "#F5A623",
+        Error = "#C0392B",
+        Info = "#2471A3",
+
+        SuccessContrastText = "#FFFFFF",
+        WarningContrastText = "#1B2A4A",
+        ErrorContrastText = "#FFFFFF",
+        InfoContrastText = "#FFFFFF",
+
+        // ── Surfaces ──
+        Background = "#F4F6FA",
+        Surface = "#FFFFFF",
+        DrawerBackground = "#1B2A4A",
+        DrawerText = "#FFFFFF",
+        DrawerIcon = "#F5A623",
+        AppbarBackground = "#1B2A4A",
+        AppbarText = "#FFFFFF",
+
+        // ── Text ──
+        TextPrimary = "#1B2A4A",
+        TextSecondary = "#5A6A85",
+        TextDisabled = "#A0AABF",
+
+        // ── Lines & Dividers ──
+        Divider = "#DDE3EE",
+        DividerLight = "#EEF1F7",
+        TableLines = "#DDE3EE",
+        TableStriped = "#F4F6FA",
+        TableHover = "#EBF0FA",
+
+        // ── Actions ──
+        ActionDefault = "#1B2A4A",
+        ActionDisabled = "#A0AABF",
+        ActionDisabledBackground = "#EEF1F7",
+
+        // ── Misc ──
+        LinesDefault = "#DDE3EE",
+        LinesInputs = "#B0BAD0",
+        HoverOpacity = 0.06,
+        RippleOpacity = 0.1,
+        GrayDefault = "#5A6A85",
+        GrayLight = "#A0AABF",
+        GrayLighter = "#DDE3EE",
+        GrayDark = "#2E3D5A",
+        GrayDarker = "#1B2A4A",
+        OverlayDark = "rgba(27, 42, 74, 0.5)",
+        OverlayLight = "rgba(244, 246, 250, 0.7)",
+    };
+
+    private MudTheme _OtherTheme = new()
+    {
+        PaletteLight = new PaletteLight
+        {
+                    // ── Primary: deep navy ──
+        Primary = "#1B2A4A",
+        PrimaryDarken = "#111D33",
+        PrimaryLighten = "#2E4270",
+        PrimaryContrastText = "#FFFFFF",
+
+        // ── Secondary: warm amber ──
+        Secondary = "#F5A623",
+        SecondaryDarken = "#D4891A",
+        SecondaryLighten = "#F7BC5A",
+        SecondaryContrastText = "#1B2A4A",
+
+        // ── Tertiary: muted teal ──
+        Tertiary = "#2E7D82",
+        TertiaryDarken = "#1F5C60",
+        TertiaryLighten = "#4A9EA4",
+        TertiaryContrastText = "#FFFFFF",
+
+        // ── Semantic ──
+        Success = "#2E7D52",
+        Warning = "#F5A623",
+        Error = "#C0392B",
+        Info = "#2471A3",
+
+        SuccessContrastText = "#FFFFFF",
+        WarningContrastText = "#1B2A4A",
+        ErrorContrastText = "#FFFFFF",
+        InfoContrastText = "#FFFFFF",
+
+        // ── Surfaces ──
+        Background = "#F4F6FA",
+        Surface = "#FFFFFF",
+        DrawerBackground = "#1B2A4A",
+        DrawerText = "#FFFFFF",
+        DrawerIcon = "#F5A623",
+        AppbarBackground = "#1B2A4A",
+        AppbarText = "#FFFFFF",
+
+        // ── Text ──
+        TextPrimary = "#1B2A4A",
+        TextSecondary = "#5A6A85",
+        TextDisabled = "#A0AABF",
+
+        // ── Lines & Dividers ──
+        Divider = "#DDE3EE",
+        DividerLight = "#EEF1F7",
+        TableLines = "#DDE3EE",
+        TableStriped = "#F4F6FA",
+        TableHover = "#EBF0FA",
+
+        // ── Actions ──
+        ActionDefault = "#1B2A4A",
+        ActionDisabled = "#A0AABF",
+        ActionDisabledBackground = "#EEF1F7",
+
+        // ── Misc ──
+        LinesDefault = "#DDE3EE",
+        LinesInputs = "#B0BAD0",
+        HoverOpacity = 0.06,
+        RippleOpacity = 0.1,
+        GrayDefault = "#5A6A85",
+        GrayLight = "#A0AABF",
+        GrayLighter = "#DDE3EE",
+        GrayDark = "#2E3D5A",
+        GrayDarker = "#1B2A4A",
+        OverlayDark = "rgba(27, 42, 74, 0.5)",
+        OverlayLight = "rgba(244, 246, 250, 0.7)",
+        },
+        Typography = new Typography
+        {
+            Default = new DefaultTypography
+            {
+                FontFamily = new[] { "Inter", "Roboto", "sans-serif" },
+                FontSize   = "0.9rem",
+            },
+            H4 = new H4Typography { FontWeight = "700" },
+            H5 = new H5Typography { FontWeight = "700" },
+            H6 = new H6Typography { FontWeight = "700" },
+            Subtitle1 = new Subtitle1Typography { FontWeight = "600" },
+        },
+        LayoutProperties = new LayoutProperties
+        {
+            DefaultBorderRadius = "8px",
+            DrawerWidthLeft     = "260px",
+        }
     };
 
     public string DarkLightModeButtonIcon => _isDarkMode switch
