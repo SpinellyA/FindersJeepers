@@ -3,21 +3,17 @@ using System.Data;
 
 public class JeepService : IJeepService
 {
-
     private readonly IUnitOfWork _uow;
-
     public JeepService(IUnitOfWork uow)
     {
         _uow = uow;
     }
-
     public async Task CreateAsync(CreateJeepneyRequest request)
     {
             var jeep = Jeepney.Create(request.PlateNumber, request.BodyNumber, request.Capacity, request.RouteId);
             await _uow.Jeepneys.AddAsync(jeep);
             await _uow.SaveChangesAsync();
     }
-
     public async Task<List<GetJeepneyResponse>> GetAsync(int pageNumber = 1, int pageSize = 10)
     {
         return await (
@@ -36,7 +32,6 @@ public class JeepService : IJeepService
         )
         .ToListAsync();
     }
-
     public async Task<GetJeepneyDetailResponse> GetByIdAsync(int jeepId)
     {
         var jeep = await _uow.Jeepneys.GetByIdAsync(jeepId);
@@ -51,7 +46,7 @@ public class JeepService : IJeepService
 
         var drivers = await _uow.Drivers.Get()
             .Where(d => assignedDriverIds.Contains(d.Id))
-            .Select(d => new DriverSummary
+            .Select(d => new GetDriverSummaryResponse
             {
                 Id = d.Id,
                 Name = d.FirstName + " " + d.LastName
@@ -60,7 +55,7 @@ public class JeepService : IJeepService
 
         var currentTrip = await _uow.Trips.Get()
             .Where(t => t.JeepneyId == jeep.Id && t.Status == TripStatus.OnGoing)
-            .Select(t => new TripSummaryResponse
+            .Select(t => new GetTripSummaryResponse
             {
                 Id = t.Id,
                 ArrivalTime = t.ArrivalTime,
@@ -73,7 +68,7 @@ public class JeepService : IJeepService
 
         var pastTrips = await _uow.Trips.Get()
             .Where(t => t.JeepneyId == jeep.Id && t.Status == TripStatus.Completed)
-            .Select(t => new TripSummaryResponse
+            .Select(t => new GetTripSummaryResponse
             {
                 Id = t.Id,
                 ArrivalTime = t.ArrivalTime,
@@ -97,19 +92,14 @@ public class JeepService : IJeepService
             PastTrips = pastTrips
         };
     }
-
     public Task UpdateAsync(UpdateJeepneyRequest request)
     {
         throw new NotImplementedException();
     }
-
-
     public Task DeleteAsync(int jeepId)
     {
         throw new NotImplementedException();
     }
-
-
     public async Task AssignDriversAsync (AssignDriversRequest request)
     {
         var jeep = await _uow.Jeepneys.GetByIdAsync(request.JeepId);
