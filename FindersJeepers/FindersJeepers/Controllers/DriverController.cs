@@ -44,5 +44,16 @@ public class DriverController : ControllerBase
         return Ok();
     }
 
+    [HttpPut("jeepneys/{driverId:int}")]
+    public async Task<IActionResult> AssignJeepneys(int driverId, [FromBody] AssignJeepneysRequest request)
+    {
+        if (driverId != request.DriverId)
+            return BadRequest("Id mismatch!");
+
+        await _driverService.AssignJeepneysAsync(request);
+
+        return Ok();
+    }
+
 
 }

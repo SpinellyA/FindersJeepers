@@ -31,9 +31,12 @@ public class JeepneyController : ControllerBase
         return Created();
     }
 
-    [HttpPut("")]
-    public async Task<IActionResult> AssignDrivers([FromBody] AssignDriversRequest req)
+    [HttpPut("drivers/{jeepneyId:int}")]
+    public async Task<IActionResult> AssignDrivers(int jeepneyId, [FromBody] AssignDriversRequest req)
     {
+        if (jeepneyId != req.JeepId)
+            return BadRequest("Id mismatch!");
+
         await jeepService.AssignDriversAsync(req);
         return Ok();
     }
