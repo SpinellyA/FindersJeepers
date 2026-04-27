@@ -112,12 +112,16 @@ public class JeepService : IJeepService
         foreach (var remove in driversToRemove)
         {
             jeep.RemoveDriver(remove.DriverId);
+            _uow.Jeepneys.Update(jeep);
         }
 
         foreach (var driver in request.DriverIds)
         {
-            if(!jeep.IsADriver(driver))
+            if (!jeep.IsADriver(driver))
+            {
                 jeep.AssignDriver(driver);
+                _uow.Jeepneys.Update(jeep);
+            }
         }
         await _uow.SaveChangesAsync();
     }
