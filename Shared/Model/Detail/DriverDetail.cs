@@ -7,5 +7,5 @@
     public string ContactNumber { get; set; } = string.Empty;
     public DateTime DateHired { get; set; }
     public List<JeepneySummary>? AssignedJeepneys { get; set; }
-    public List<GetTripSummaryResponse> TripHistory { get; set; } = new();
+    public List<TripSummary> TripHistory { get; set; } = new();
 }

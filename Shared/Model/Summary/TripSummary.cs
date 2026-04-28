@@ -1,4 +1,4 @@
-﻿public class GetTripSummaryResponse
+﻿public class TripSummary
 {
     public int Id { get; set; }
     public string RouteCode { get; set; } = string.Empty;

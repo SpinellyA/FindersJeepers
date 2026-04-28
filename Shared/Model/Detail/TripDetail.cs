@@ -1,4 +1,4 @@
-﻿public class GetTripDetailResponse
+﻿public class TripDetailDto
 {
     public int Id { get; set; }
     public int JeepneyId { get; set; }

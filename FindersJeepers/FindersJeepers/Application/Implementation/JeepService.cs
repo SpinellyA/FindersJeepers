@@ -55,7 +55,7 @@ public class JeepService : IJeepService
 
         var currentTrip = await _uow.Trips.Get()
             .Where(t => t.JeepneyId == jeep.Id && t.Status == TripStatus.OnGoing)
-            .Select(t => new GetTripSummaryResponse
+            .Select(t => new TripSummary
             {
                 Id = t.Id,
                 ArrivalTime = t.ArrivalTime,
@@ -68,7 +68,7 @@ public class JeepService : IJeepService
 
         var pastTrips = await _uow.Trips.Get()
             .Where(t => t.JeepneyId == jeep.Id && t.Status == TripStatus.Completed)
-            .Select(t => new GetTripSummaryResponse
+            .Select(t => new TripSummary
             {
                 Id = t.Id,
                 ArrivalTime = t.ArrivalTime,

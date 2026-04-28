@@ -106,7 +106,7 @@ public class DriverService : IDriverService
             .ToListAsync();
 
         var tripSummaries = trips
-            .Select(t => new GetTripSummaryResponse
+            .Select(t => new TripSummary
             {
                 Id = t.Id,
                 ArrivalTime = t.ArrivalTime,

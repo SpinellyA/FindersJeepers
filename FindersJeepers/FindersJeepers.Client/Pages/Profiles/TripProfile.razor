@@ -223,7 +223,7 @@ else
 @code {
     [Parameter] public int Id { get; set; }
 
-    private GetTripDetailResponse? _trip;
+    private TripDetailDto? _trip;
     private List<BreadcrumbItem> _breadcrumbs = new();
     private bool _logDialogVisible = false;
     private LogForm _logForm = new();
@@ -255,7 +255,7 @@ else
             new() { Id = 4, Name = "Carbon Market" },
         };
 
-        _trip = new GetTripDetailResponse
+        _trip = new TripDetailDto
         {
             Id = Id,
             JeepneyId = 1,
