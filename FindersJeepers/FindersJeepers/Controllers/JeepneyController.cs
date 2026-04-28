@@ -40,4 +40,11 @@ public class JeepneyController : ControllerBase
         await jeepService.AssignDriversAsync(req);
         return Ok();
     }
+
+    [HttpGet("drivers/{jeepneyId:int}")]
+    public async Task<IActionResult> GetJeepneyDrivers(int jeepneyId)
+    {
+        var result = await jeepService.GetJeepneyDriversAsync(jeepneyId);
+        return Ok(result);
+    }
 }
