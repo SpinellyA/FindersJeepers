@@ -8,5 +8,5 @@
     Task<JeepneyDetail> GetByIdAsync(int jeepId);
 
     Task AssignDriversAsync(AssignDriversRequest request);
-
+    Task<List<JeepneyDriverDto>> GetJeepneyDriversAsync(int jeepId);
 }

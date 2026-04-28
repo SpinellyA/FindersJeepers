@@ -39,19 +39,7 @@ public class JeepService : IJeepService
 
         var route = await _uow.Routes.GetByIdAsync(jeep.RouteId);
 
-        var assignedDriverIds = jeep.Drivers
-            .Where(jd => jd.UnassignedAt == null)
-            .Select(jd => jd.DriverId)
-            .ToList();
-
-        var drivers = await _uow.Drivers.Get()
-            .Where(d => assignedDriverIds.Contains(d.Id))
-            .Select(d => new DriverSummary
-            {
-                Id = d.Id,
-                Name = d.FirstName + " " + d.LastName
-            })
-            .ToListAsync();
+        var drivers = await GetJeepneyDriversAsync(jeepId);
 
         var currentTrip = await _uow.Trips.Get()
             .Where(t => t.JeepneyId == jeep.Id && t.Status == TripStatus.OnGoing)
@@ -124,6 +112,23 @@ public class JeepService : IJeepService
             }
         }
         await _uow.SaveChangesAsync();
+    }
+
+    public async Task<List<JeepneyDriverDto>> GetJeepneyDriversAsync(int jeepId)
+    {
+        var jeep = await _uow.Jeepneys.GetByIdAsync(jeepId);
+
+        return (
+            from j in jeep.Drivers
+            join d in _uow.Drivers.Get() on j.DriverId equals d.Id
+            select new JeepneyDriverDto
+            {
+                Id = d.Id,
+                AssignedAt = j.AssignedAt,
+                FirstName = d.FirstName,
+                LastName = d.LastName,
+            }
+            ).ToList();
     }
 }
 
