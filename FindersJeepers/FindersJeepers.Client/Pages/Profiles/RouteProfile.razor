@@ -56,10 +56,10 @@ else
                         }
                         else
                         {
-                            <MudList T="GetJeepneySummaryResponse" Dense="true" DisablePadding="true">
+                            <MudList T="JeepneySummary" Dense="true" DisablePadding="true">
                                 @foreach (var j in _route.AssignedJeepneys)
                                 {
-                                    <MudListItem T="GetJeepneySummaryResponse">
+                                    <MudListItem T="JeepneySummary">
                                         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
                                             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
                                                 <MudAvatar Color="Color.Secondary" Size="Size.Small" Variant="Variant.Filled">
@@ -150,7 +150,7 @@ else
 @code {
     [Parameter] public int Id { get; set; }
 
-    private GetRouteDetailResponse? _route;
+    private RouteDetail? _route;
     private List<BreadcrumbItem> _breadcrumbs = new();
 
     protected override async Task OnInitializedAsync()
@@ -158,20 +158,20 @@ else
         // Replace with: _route = await RouteService.GetProfileAsync(Id);
         await Task.Delay(300);
 
-        _route = new GetRouteDetailResponse
+        _route = new RouteDetail
         {
             Id = Id,
             RouteCode = "01A",
             LocationStart = "Ayala Center Cebu",
             LocationEnd = "Carbon Market",
-            Stops = new List<GetRouteStopResponse>
+            Stops = new List<RouteStopDto>
             {
                 new() { StopIndex = 0, LocationName = "Ayala Center Cebu" },
                 new() { StopIndex = 1, LocationName = "IT Park" },
                 new() { StopIndex = 2, LocationName = "Colon Street" },
                 new() { StopIndex = 3, LocationName = "Carbon Market" },
             },
-            AssignedJeepneys = new List<GetJeepneySummaryResponse>
+            AssignedJeepneys = new List<JeepneySummary>
             {
                 new() { Id = 1, PlateNumber = "ABX 1234", DriverName = "Juan Dela Cruz" },
                 new() { Id = 2, PlateNumber = "CDY 5678", DriverName = "Maria Santos" },

@@ -118,9 +118,9 @@ else
     private bool _changeDriverDialogVisible = false;
     private bool _isEditing = false;
     private JeepneyForm _form = new();
-    private GetJeepneyResponse? _selectedJeepney;
-    private List<GetJeepneyResponse>? _jeepneys;
-    private List<GetRouteSummaryResponse> _availableRoutes = new();
+    private JeepneyDto? _selectedJeepney;
+    private List<JeepneyDto>? _jeepneys;
+    private List<RouteSummary> _availableRoutes = new();
 
     private DialogOptions _dialogOptions = new()
     {
@@ -129,12 +129,12 @@ else
         CloseOnEscapeKey = true
     };
 
-    private IEnumerable<GetJeepneyResponse> FilteredJeepneys => _jeepneys?
+    private IEnumerable<JeepneyDto> FilteredJeepneys => _jeepneys?
         .Where(j =>
             string.IsNullOrWhiteSpace(_search) ||
             j.PlateNumber.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
             j.BodyNumber.Contains(_search, StringComparison.OrdinalIgnoreCase))
-        ?? Enumerable.Empty<GetJeepneyResponse>();
+        ?? Enumerable.Empty<JeepneyDto>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -145,8 +145,8 @@ else
 
     private async Task LoadData()
     {
-        _jeepneys = await Http.GetFromJsonAsync<List<GetJeepneyResponse>>("/api/v1/jeepneys");
-        _availableRoutes = await Http.GetFromJsonAsync<List<GetRouteSummaryResponse>>("/api/v1/routes/");
+        _jeepneys = await Http.GetFromJsonAsync<List<JeepneyDto>>("/api/v1/jeepneys");
+        _availableRoutes = await Http.GetFromJsonAsync<List<RouteSummary>>("/api/v1/routes/");
     }
 
     private void OpenAddDialog()
@@ -156,7 +156,7 @@ else
         _dialogVisible = true;
     }
 
-    private void OpenEditDialog(GetJeepneyResponse jeepney)
+    private void OpenEditDialog(JeepneyDto jeepney)
     {
         _form = new JeepneyForm
         {
@@ -200,7 +200,7 @@ else
         _changeDriverDialogVisible = false;
     }
 
-    private async Task ConfirmDelete(GetJeepneyResponse jeepney)
+    private async Task ConfirmDelete(JeepneyDto jeepney)
     {
         // Replace with confirm dialog + await JeepneyService.DeleteAsync(jeepney.Id);
     }

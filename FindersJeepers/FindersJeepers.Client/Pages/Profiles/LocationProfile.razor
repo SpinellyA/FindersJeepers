@@ -72,10 +72,10 @@ else
                         }
                         else
                         {
-                            <MudList T="GetRouteSummaryResponse" Dense="true" DisablePadding="true">
+                            <MudList T="RouteSummary" Dense="true" DisablePadding="true">
                                 @foreach (var route in _location.Routes)
                                 {
-                                    <MudListItem T="GetRouteSummaryResponse">
+                                    <MudListItem T="RouteSummary">
                                         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
                                             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
                                                 <MudAvatar Color="Color.Tertiary" Size="Size.Small" Variant="Variant.Filled">
@@ -180,7 +180,7 @@ else
 @code {
     [Parameter] public int Id { get; set; }
 
-    private GetLocationDetailResponse? _location;
+    private LocationDetail? _location;
     private List<BreadcrumbItem> _breadcrumbs = new();
     private bool _dialogVisible = false;
     private LocationForm _form = new();
@@ -197,17 +197,17 @@ else
         // Replace with: _location = await LocationService.GetDetailAsync(Id);
         await Task.Delay(300);
 
-        _location = new GetLocationDetailResponse
+        _location = new LocationDetail
         {
             Id = Id,
             Name = "Ayala Center Cebu",
             Description = "Main commercial hub in Cebu City.",
-            Routes = new List<GetRouteSummaryResponse>
+            Routes = new List<RouteSummary>
             {
                 new() { Id = 1, RouteCode = "01A", LocationStart = "Ayala Center Cebu", LocationEnd = "Carbon Market" },
                 new() { Id = 3, RouteCode = "03C", LocationStart = "Ayala Center Cebu", LocationEnd = "SM City Cebu" },
             },
-            StopOccurrences = new List<GetRouteStopOccurrenceResponse>
+            StopOccurrences = new List<RouteStopOccurrence>
             {
                 new() { RouteId = 1, RouteCode = "01A", StopIndex = 0 },
                 new() { RouteId = 2, RouteCode = "02B", StopIndex = 2 },

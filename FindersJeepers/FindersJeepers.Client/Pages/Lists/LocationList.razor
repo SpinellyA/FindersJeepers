@@ -97,7 +97,7 @@ else
     private bool _dialogVisible = false;
     private bool _isEditing = false;
     private LocationForm _form = new();
-    private List<GetLocationResponse>? _locations;
+    private List<LocationDto>? _locations;
 
     private DialogOptions _dialogOptions = new()
     {
@@ -106,10 +106,10 @@ else
         CloseOnEscapeKey = true
     };
 
-    private IEnumerable<GetLocationResponse> FilteredLocations => _locations?
+    private IEnumerable<LocationDto> FilteredLocations => _locations?
         .Where(l => string.IsNullOrWhiteSpace(_search) ||
                     l.Name.Contains(_search, StringComparison.OrdinalIgnoreCase))
-        ?? Enumerable.Empty<GetLocationResponse>();
+        ?? Enumerable.Empty<LocationDto>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -119,7 +119,7 @@ else
 
     private async Task LoadData()
     {
-        _locations = await Http.GetFromJsonAsync<List<GetLocationResponse>>("/api/v1/locations");
+        _locations = await Http.GetFromJsonAsync<List<LocationDto>>("/api/v1/locations");
 
     }
 
@@ -130,7 +130,7 @@ else
         _dialogVisible = true;
     }
 
-    private void OpenEditDialog(GetLocationResponse location)
+    private void OpenEditDialog(LocationDto location)
     {
         _form = new LocationForm
         {
@@ -165,7 +165,7 @@ else
         CloseDialog();
     }
 
-    private async Task ConfirmDelete(GetLocationResponse location)
+    private async Task ConfirmDelete(LocationDto location)
     {
     }
 

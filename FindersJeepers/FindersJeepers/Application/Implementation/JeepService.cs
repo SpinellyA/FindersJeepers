@@ -14,12 +14,12 @@ public class JeepService : IJeepService
             await _uow.Jeepneys.AddAsync(jeep);
             await _uow.SaveChangesAsync();
     }
-    public async Task<List<GetJeepneyResponse>> GetAsync(int pageNumber = 1, int pageSize = 10)
+    public async Task<List<JeepneyDto>> GetAsync(int pageNumber = 1, int pageSize = 10)
     {
         return await (
             from j in _uow.Jeepneys.Get()
             join r in _uow.Routes.Get() on j.RouteId equals r.Id
-            select new GetJeepneyResponse
+            select new JeepneyDto
             {
                 Id = j.Id,
                 PlateNumber = j.PlateNumber,
@@ -32,7 +32,7 @@ public class JeepService : IJeepService
         )
         .ToListAsync();
     }
-    public async Task<GetJeepneyDetailResponse> GetByIdAsync(int jeepId)
+    public async Task<JeepneyDetail> GetByIdAsync(int jeepId)
     {
         var jeep = await _uow.Jeepneys.GetByIdAsync(jeepId);
         if (jeep == null) throw new InvalidIdException("Invalid jeepney ID!");
@@ -46,7 +46,7 @@ public class JeepService : IJeepService
 
         var drivers = await _uow.Drivers.Get()
             .Where(d => assignedDriverIds.Contains(d.Id))
-            .Select(d => new GetDriverSummaryResponse
+            .Select(d => new DriverSummary
             {
                 Id = d.Id,
                 Name = d.FirstName + " " + d.LastName
@@ -79,7 +79,7 @@ public class JeepService : IJeepService
             })
             .ToListAsync();
 
-        return new GetJeepneyDetailResponse
+        return new JeepneyDetail
         {
             Id = jeep.Id,
             PlateNumber = jeep.PlateNumber,

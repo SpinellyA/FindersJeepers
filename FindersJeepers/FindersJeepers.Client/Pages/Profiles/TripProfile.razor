@@ -266,7 +266,7 @@ else
             Capacity = 16,
             DepartureTime = DateTime.Now.AddHours(-1).AddMinutes(-20),
             ArrivalTime = null,
-            Logs = new List<GetTripLogResponse>
+            Logs = new List<TripLogDto>
             {
                 new() { StopName = "Ayala Center Cebu", EventType = "Departure", PassengerCount = 12, Timestamp = DateTime.Now.AddHours(-1).AddMinutes(-20) },
                 new() { StopName = "IT Park",           EventType = "Arrival",   PassengerCount = 9,  Timestamp = DateTime.Now.AddMinutes(-50) },

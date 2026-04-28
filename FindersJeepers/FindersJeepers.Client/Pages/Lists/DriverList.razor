@@ -134,7 +134,7 @@ else
     private bool _dialogVisible = false;
     private bool _isEditing = false;
     private DriverForm _form = new();
-    private List<GetDriverResponse>? _drivers;
+    private List<DriverDto>? _drivers;
 
     private DialogOptions _dialogOptions = new()
     {
@@ -143,12 +143,12 @@ else
         CloseOnEscapeKey = true
     };
 
-    private IEnumerable<GetDriverResponse> FilteredDrivers => _drivers?
+    private IEnumerable<DriverDto> FilteredDrivers => _drivers?
         .Where(d =>
             string.IsNullOrWhiteSpace(_search) ||
             $"{d.FirstName} {d.LastName}".Contains(_search, StringComparison.OrdinalIgnoreCase) ||
             d.LicenseNumber.Contains(_search, StringComparison.OrdinalIgnoreCase))
-        ?? Enumerable.Empty<GetDriverResponse>();
+        ?? Enumerable.Empty<DriverDto>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -164,7 +164,7 @@ else
 
     protected async Task LoadData()
     {
-        _drivers = await Http.GetFromJsonAsync<List<GetDriverResponse>>("/api/v1/drivers/");
+        _drivers = await Http.GetFromJsonAsync<List<DriverDto>>("/api/v1/drivers/");
     }
 
     private void OpenAddDialog()
@@ -175,7 +175,7 @@ else
 
     }
 
-    private void OpenEditDialog(GetDriverResponse driver) // change
+    private void OpenEditDialog(DriverDto driver) // change
     {
         _form = new DriverForm
         {

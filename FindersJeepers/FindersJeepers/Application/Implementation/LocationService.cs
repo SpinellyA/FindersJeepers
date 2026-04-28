@@ -22,10 +22,10 @@ public class LocationService : ILocationService
         throw new NotImplementedException();
     }
 
-    public async Task<List<GetLocationResponse>> GetAsync(int pageNumber = -1, int pageSize = -1)
+    public async Task<List<LocationDto>> GetAsync(int pageNumber = -1, int pageSize = -1)
     {
         var locations = _uow.Locations.Get();
-        return await locations.Select(l => new GetLocationResponse
+        return await locations.Select(l => new LocationDto
         {
             Id = l.Id,
             Name = l.Name,
@@ -33,7 +33,7 @@ public class LocationService : ILocationService
         }).ToListAsync();
     }
 
-    public Task<GetLocationDetailResponse> GetByIdAsync(int locationId)
+    public Task<LocationDetail> GetByIdAsync(int locationId)
     {
         throw new NotImplementedException();
     }

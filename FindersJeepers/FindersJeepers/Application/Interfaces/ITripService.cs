@@ -1,5 +1,5 @@
 ﻿
 public interface ITripService
     {
-        Task<List<GetTripResponse>> GetTrips(int driverId, int jeepId);
+        Task<List<TripDto>> GetTrips(int driverId, int jeepId);
     }

@@ -17,14 +17,14 @@ public class DriverService : IDriverService
         await _uow.Drivers.AddAsync(driver);
         await _uow.SaveChangesAsync();
     }
-    public async Task<List<GetDriverResponse>> GetAsync(int pageNumber = -1, int pageSize = -1)
+    public async Task<List<DriverDto>> GetAsync(int pageNumber = -1, int pageSize = -1)
     {
 
         var query = _uow.Drivers.Get();
 
         if (pageNumber == -1 && pageSize == -1)
         {
-            return await query.Select(d => new GetDriverResponse
+            return await query.Select(d => new DriverDto
             {
                 FirstName = d.FirstName,
                 DateHired = d.DateHired,
@@ -40,7 +40,7 @@ public class DriverService : IDriverService
             .Take(pageSize)
             .ToListAsync();
 
-        return drivers.Select(d => new GetDriverResponse
+        return drivers.Select(d => new DriverDto
         {
             FirstName = d.FirstName,
             DateHired = d.DateHired,
@@ -68,7 +68,7 @@ public class DriverService : IDriverService
         await _uow.SaveChangesAsync();
     }
 
-    public async Task<GetDriverDetailResponse> GetByIdAsync(int driverId)
+    public async Task<DriverDetail> GetByIdAsync(int driverId)
     {
         var driver = await _uow.Drivers.GetByIdAsync(driverId);
         if (driver == null) throw new InvalidIdException("Invalid driver ID!");
@@ -80,7 +80,7 @@ public class DriverService : IDriverService
                 (j, r) => new { Jeepney = j, Route = r })
             .ToListAsync();
         var assignedJeepneys = jeepneyData
-            .Select(x => new GetJeepneySummaryResponse
+            .Select(x => new JeepneySummary
             {
                 Id = x.Jeepney.Id,
                 PlateNumber = x.Jeepney.PlateNumber,
@@ -117,7 +117,7 @@ public class DriverService : IDriverService
             })
             .ToList();
 
-        return new GetDriverDetailResponse
+        return new DriverDetail
         {
             Id = driver.Id,
             FirstName = driver.FirstName,

@@ -11,7 +11,7 @@ public class RouteService : IRouteService
         _uow = uow;
     }
 
-    public async Task<List<GetRouteResponse>> GetRoutes()
+    public async Task<List<RouteDto>> GetRoutes()
     {
         var result = await (
         from r in _uow.Routes.Get()
@@ -22,7 +22,7 @@ public class RouteService : IRouteService
         join le in _uow.Locations.Get()
             on r.LocationEndId equals le.Id
 
-        select new GetRouteResponse
+        select new RouteDto
         {
             Id = r.Id,
             RouteCode = r.RouteCode,

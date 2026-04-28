@@ -203,22 +203,22 @@ else
     private bool _logsPanelVisible = false;
     private TripForm _form = new();
     private LogForm _logForm = new();
-    private GetTripResponse? _selectedTrip;
-    private List<GetTripResponse>? _trips;
-    private List<GetTripLogResponse> _selectedTripLogs = new();
+    private TripDto? _selectedTrip;
+    private List<TripDto>? _trips;
+    private List<TripLogDto> _selectedTripLogs = new();
     private List<JeepneyOption> _availableJeepneys = new();
     private List<StopOption> _availableStops = new();
 
     private DialogOptions _dialogOptions = new() { MaxWidth = MaxWidth.Small, FullWidth = true, CloseOnEscapeKey = true };
     private DialogOptions _logsDialogOptions = new() { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseOnEscapeKey = true };
 
-    private IEnumerable<GetTripResponse> FilteredTrips => _trips?
+    private IEnumerable<TripDto> FilteredTrips => _trips?
         .Where(t =>
             (string.IsNullOrWhiteSpace(_search) ||
              t.PlateNumber.Contains(_search, StringComparison.OrdinalIgnoreCase) ||
              t.RouteCode.Contains(_search, StringComparison.OrdinalIgnoreCase)) &&
             (_statusFilter is null || t.Status == _statusFilter))
-        ?? Enumerable.Empty<GetTripResponse>();
+        ?? Enumerable.Empty<TripDto>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -238,7 +238,7 @@ else
             new() { Id = 4, Name = "Carbon Market" },
         };
 
-        _trips = new List<GetTripResponse>
+        _trips = new List<TripDto>
         {
             new() { Id = 1, PlateNumber = "ABX 1234", RouteCode = "01A", Status = "OnGoing", DepartureTime = DateTime.Now.AddHours(-1), LogCount = 3 },
             new() { Id = 2, PlateNumber = "CDY 5678", RouteCode = "02B", Status = "Waiting", LogCount = 0 },
@@ -268,18 +268,18 @@ else
         _dialogVisible = true;
     }
 
-    private void OpenLogDialog(GetTripResponse trip)
+    private void OpenLogDialog(TripDto trip)
     {
         _selectedTrip = trip;
         _logForm = new LogForm();
         _logDialogVisible = true;
     }
 
-    private void OpenLogsPanel(GetTripResponse trip)
+    private void OpenLogsPanel(TripDto trip)
     {
         _selectedTrip = trip;
         // Replace with: _selectedTripLogs = await TripService.GetLogsAsync(trip.Id);
-        _selectedTripLogs = new List<GetTripLogResponse>
+        _selectedTripLogs = new List<TripLogDto>
         {
             new() { StopName = "Ayala Center Cebu", EventType = "Departure", PassengerCount = 12, Timestamp = DateTime.Now.AddHours(-1) },
             new() { StopName = "IT Park", EventType = "Arrival", PassengerCount = 8, Timestamp = DateTime.Now.AddMinutes(-40) },
@@ -288,14 +288,14 @@ else
         _logsPanelVisible = true;
     }
 
-    private async Task StartTrip(GetTripResponse trip)
+    private async Task StartTrip(TripDto trip)
     {
         // Replace with: await TripService.StartTripAsync(trip.Id);
         trip.Status = "OnGoing";
         trip.DepartureTime = DateTime.Now;
     }
 
-    private async Task CompleteTrip(GetTripResponse trip)
+    private async Task CompleteTrip(TripDto trip)
     {
         // Replace with: await TripService.CompleteTripAsync(trip.Id);
         trip.Status = "Completed";

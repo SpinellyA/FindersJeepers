@@ -1,5 +1,5 @@
 ﻿
-public class GetRouteStopOccurrenceResponse
+public class RouteStopOccurrence
 {
     public int RouteId { get; set; }
     public string RouteCode { get; set; } = string.Empty;

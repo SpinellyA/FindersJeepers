@@ -78,10 +78,10 @@ else
                         }
                         else
                         {
-                            <MudList T="GetJeepneySummaryResponse" DisablePadding="true">
+                            <MudList T="JeepneySummary" DisablePadding="true">
                                 @foreach (var jeepney in _driver.AssignedJeepneys)
                                 {
-                                    <MudListItem T="GetJeepneySummaryResponse">
+                                    <MudListItem T="JeepneySummary">
                                         <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
                                             <MudAvatar Color="Color.Secondary" Variant="Variant.Filled" Size="Size.Medium">
                                                 <MudIcon Icon="@Icons.Material.Filled.DirectionsBus" />
@@ -262,7 +262,7 @@ else
 @code {
     [Parameter] public int Id { get; set; }
 
-    private GetDriverDetailResponse? _driver;
+    private DriverDetail? _driver;
     private List<BreadcrumbItem> _breadcrumbs = new();
     private DriverForm _form = new();
     private int YearsOfService =>
@@ -296,10 +296,10 @@ else
 
     private async Task LoadData()
     {
-        _driver = await Http.GetFromJsonAsync<GetDriverDetailResponse>($"/api/v1/drivers/{Id}");
+        _driver = await Http.GetFromJsonAsync<DriverDetail>($"/api/v1/drivers/{Id}");
     }
 
-    private void OpenEditDialog(GetDriverDetailResponse driver) // change
+    private void OpenEditDialog(DriverDetail driver) // change
     {
         _form = new DriverForm
         {

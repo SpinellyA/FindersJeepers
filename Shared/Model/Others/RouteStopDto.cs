@@ -1,4 +1,4 @@
-﻿public class GetRouteStopResponse
+﻿public class RouteStopDto
 {
     public int LocationId { get; set; }
     public string LocationName { get; set; } = string.Empty;
