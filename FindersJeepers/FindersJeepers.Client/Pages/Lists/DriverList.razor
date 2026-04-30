@@ -155,12 +155,10 @@ else
         await LoadData();
     }
 
-    @code {
     private void NavigateToDriver(int driverId)
     {
         NavigationManager.NavigateTo($"/drivers/{driverId}");
     }
-}
 
     protected async Task LoadData()
     {
