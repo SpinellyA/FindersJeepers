@@ -8,6 +8,7 @@ public class JeepService : IJeepService
     {
         _uow = uow;
     }
+
     public async Task CreateAsync(CreateJeepneyRequest request)
     {
             var jeep = Jeepney.Create(request.PlateNumber, request.BodyNumber, request.Capacity, request.RouteId);
@@ -129,6 +130,14 @@ public class JeepService : IJeepService
                 LastName = d.LastName,
             }
             ).ToList();
+    }
+
+    public async Task RemoveDriverAsync(int driverId, int jeepneyId)
+    {
+        var jeep = await _uow.Jeepneys.GetByIdAsync(driverId);
+        jeep.RemoveDriver(driverId);
+        _uow.Jeepneys.Update(jeep);
+        await _uow.SaveChangesAsync();
     }
 }
 

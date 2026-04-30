@@ -9,4 +9,5 @@
 
     Task AssignDriversAsync(AssignDriversRequest request);
     Task<List<JeepneyDriverDto>> GetJeepneyDriversAsync(int jeepId);
+    Task RemoveDriverAsync(int driverId, int jeepneyId);
 }
