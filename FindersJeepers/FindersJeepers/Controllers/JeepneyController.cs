@@ -47,4 +47,10 @@ public class JeepneyController : ControllerBase
         var result = await jeepService.GetJeepneyDriversAsync(jeepneyId);
         return Ok(result);
     }
+    [HttpDelete("{jeepneyId:int}/drivers/{driverId:int}")]
+    public async Task<IActionResult> RemoveDriverAsync(int jeepneyId, int driverId)
+    {
+        await jeepService.RemoveDriverAsync(driverId, jeepneyId);
+        return Ok();
+    }
 }
