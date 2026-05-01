@@ -78,7 +78,7 @@ else
                         }
                         else
                         {
-                            <MudList T="JeepneySummary" DisablePadding="true">
+                            <MudList T="JeepneySummary" Padding="false">
                                 @foreach (var jeepney in _driver.AssignedJeepneys)
                                 {
                                     <MudListItem T="JeepneySummary">
@@ -372,7 +372,6 @@ else
         _availableJeepneys = null;
         _assignJeepneysVisible = true;
         _availableJeepneys = await Http.GetFromJsonAsync<List<JeepneyOption>>($"/api/v1/options/jeeps/available-for-driver/{Id}");
-
     }
 
     private void ToggleJeepney(int jeepneyId)
@@ -400,6 +399,7 @@ else
         if(response.IsSuccessStatusCode)
         {
             Snackbar.Add("Assigned Jeepneys Successfully!");
+            await LoadData();
         } else
         {
             Snackbar.Add("Something went wrong...");
