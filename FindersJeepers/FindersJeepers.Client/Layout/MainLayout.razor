@@ -28,6 +28,31 @@
     <span class="dismiss">🗙</span>
 </div>
 
+<style>
+    .pop-card {
+        transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    }
+
+        .pop-card:hover {
+            transform: scale(1.02);
+            background-color: var(--mud-palette-background-grey);
+            cursor: pointer;
+        }
+
+    .transition-card {
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease;
+        cursor: pointer;
+        border-radius: 8px; 
+    }
+        .transition-card:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: var(--mud-elevation-6);
+            background-color: var(--mud-palette-surface-light);
+        }
+</style>
+
+
+
 @code {
     private bool _drawerOpen = true;
     private bool _isDarkMode = true;

@@ -6,6 +6,8 @@
 @using MudBlazor
 @inject ISnackbar Snackbar
 
+
+
 <MudContainer MaxWidth="MaxWidth.False" Class="pa-6">
 
 <MudText Typo="Typo.h4" Class="mb-1 fw-bold">Drivers</MudText>
@@ -43,8 +45,8 @@ else
         <MudItem xs="12" sm="6" md="4" lg="3">
             <MudCard Elevation="2" 
                      @onclick="() => NavigateToDriver(driver.Id)"
-                     Hover="true"
-                     Class="cursor-pointer transition-card"
+                     
+                     Class="cursor-pointer transition-card pop-card"
                      Style="border-radius:12px;">
                 <MudCardHeader>
                     <CardHeaderAvatar>
