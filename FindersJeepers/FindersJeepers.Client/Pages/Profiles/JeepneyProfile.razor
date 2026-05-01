@@ -397,9 +397,7 @@ else
 
     private async Task ConfirmRemoveDriver(JeepneyDriverDto driver)
     {
-        // Replace with:
-        // await Http.DeleteAsync($"/api/jeepneys/{Id}/drivers/{driver.Id}");
-        // _jeepney.AssignedDrivers.Remove(driver);
+        await Http.DeleteAsync($"/api/v1/jeepneys/{Id}/drivers/{driver.Id}");
         Snackbar.Add($"{driver.FirstName} has been removed.", Severity.Info);
     }
 
