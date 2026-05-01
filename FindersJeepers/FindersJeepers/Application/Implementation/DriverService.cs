@@ -86,7 +86,6 @@ public class DriverService : IDriverService
                 PlateNumber = x.Jeepney.PlateNumber,
                 BodyNumber = x.Jeepney.BodyNumber,
                 Capacity = x.Jeepney.Capacity,
-                DriverName = driver.FirstName + " " + driver.LastName,
                 RouteCode = x.Route.RouteCode
             })
             .ToList();
