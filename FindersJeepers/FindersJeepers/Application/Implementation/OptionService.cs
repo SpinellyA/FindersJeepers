@@ -67,4 +67,21 @@ public class OptionService : IOptionService
         //        RouteCode = 
         //    }).ToListAsync();
     }
+    
+    public async Task<List<LocationDto>> SearchLocations(string query)
+    {
+        if (string.IsNullOrWhiteSpace(query)) return new();
+
+        return await _uow.Locations.Get()
+            .Where(x => x.Name.Contains(query))
+            //.Take(10)
+            .Select(x => new LocationDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Description = x.Description
+            })
+            .ToListAsync();
+
+    }
 } 
