@@ -353,6 +353,11 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
         _jeepney = await Http.GetFromJsonAsync<JeepneyDetail>($"/api/v1/jeepneys/{Id}");
 
         _breadcrumbs = new List<BreadcrumbItem>
@@ -370,13 +375,8 @@ else
         _availableDrivers = null;
         _assignDriversVisible = true;
 
-        // Replace with: _availableDrivers = await Http.GetFromJsonAsync<List<DriverOption>>($"/api/options/drivers/available-for-jeep/{Id}");
+        _availableDrivers = await Http.GetFromJsonAsync<List<DriverOption>>($"/api/v1/options/drivers/available-for-jeep/{Id}");
         await Task.Delay(300);
-        _availableDrivers = new List<DriverOption>
-        {
-            new() { Id = 10, FirstName = "Pedro Reyes" },
-            new() { Id = 11, FirstName = "Jose Rizal" },
-        };
     }
 
     private void ToggleDriver(int driverId)
@@ -388,17 +388,33 @@ else
     private async Task ConfirmAssignDrivers()
     {
         // Replace with:
-        // await Http.PostAsJsonAsync($"/api/jeepneys/{Id}/drivers", new { DriverIds = _selectedDriverIds.ToList() });
-        // _jeepney = await Http.GetFromJsonAsync<GetJeepneyDetailResponse>($"/api/v1/jeepneys/{Id}");
-        _assignDriversVisible = false;
-        _selectedDriverIds = new();
-        Snackbar.Add("Drivers assigned successfully.", Severity.Success);
+        var response = await Http.PostAsJsonAsync($"/api/v1/jeepneys/{Id}/drivers", new AssignDriversRequest { JeepId = Id, DriverIds = _selectedDriverIds.ToList() });
+        if(response.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Drivers assigned successfully.", Severity.Success);
+            _assignDriversVisible = false;
+            _selectedDriverIds = new();
+            await LoadData();
+        } else
+        {
+            Snackbar.Add("Something went wrong...", Severity.Error);
+        }
     }
 
     private async Task ConfirmRemoveDriver(JeepneyDriverDto driver)
     {
-        await Http.DeleteAsync($"/api/v1/jeepneys/{Id}/drivers/{driver.Id}");
-        Snackbar.Add($"{driver.FirstName} has been removed.", Severity.Info);
+        var response = await Http.DeleteAsync($"/api/v1/jeepneys/{Id}/drivers/{driver.Id}");
+
+        if(response.IsSuccessStatusCode)
+        {
+            Snackbar.Add($"{driver.FirstName} has been removed.", Severity.Info);
+
+        } else
+        {
+            Snackbar.Add("Something went wrong", Severity.Error);
+        }
+
+        await LoadData();
     }
 
     private void OpenEditDialog() { }
