@@ -96,13 +96,13 @@ public class JeepService : IJeepService
         if (jeep == null)
             throw new Exception("Jeep not found!");
 
-        var driversToRemove = jeep.Drivers.Where(x => !request.DriverIds.Contains(x.DriverId)).ToList();
+        //var driversToRemove = jeep.Drivers.Where(x => !request.DriverIds.Contains(x.DriverId)).ToList();
 
-        foreach (var remove in driversToRemove)
-        {
-            jeep.RemoveDriver(remove.DriverId);
-            _uow.Jeepneys.Update(jeep);
-        }
+        //foreach (var remove in driversToRemove)
+        //{
+        //    jeep.RemoveDriver(remove.DriverId);
+        //    _uow.Jeepneys.Update(jeep);
+        //}
 
         foreach (var driver in request.DriverIds)
         {
