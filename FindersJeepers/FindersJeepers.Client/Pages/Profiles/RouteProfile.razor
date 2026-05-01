@@ -1,5 +1,7 @@
 ﻿@page "/routes/{Id:int}"
 @using MudBlazor
+@inject HttpClient Http
+@inject ISnackbar Snackbar
 
 @if (_route is null)
 {
@@ -15,6 +17,7 @@ else
         <MudItem xs="12" md="4">
             <MudStack Spacing="4">
 
+                @* Identity Card *@
                 <MudCard Elevation="2" Style="border-radius:14px;">
                     <MudCardContent Class="d-flex flex-column align-items-center text-center pa-6">
                         <MudAvatar Color="Color.Tertiary" Style="width:80px;height:80px;" Class="mb-3" Variant="Variant.Filled">
@@ -41,7 +44,7 @@ else
                     </MudCardContent>
                 </MudCard>
 
-                @* Jeepneys on this route *@
+                @* Assigned Jeepneys *@
                 <MudCard Elevation="2" Style="border-radius:14px;">
                     <MudCardHeader>
                         <CardHeaderContent>
@@ -49,17 +52,19 @@ else
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudDivider />
-                    <MudCardContent>
+                    <MudCardContent Class="pa-0">
                         @if (!_route.AssignedJeepneys.Any())
                         {
-                            <MudAlert Severity="Severity.Info" Dense="true">No jeepneys on this route.</MudAlert>
+                            <MudAlert Severity="Severity.Info" Dense="true" Class="ma-3">
+                                No jeepneys on this route.
+                            </MudAlert>
                         }
                         else
                         {
                             <MudList T="JeepneySummary" Dense="true" DisablePadding="true">
                                 @foreach (var j in _route.AssignedJeepneys)
                                 {
-                                    <MudListItem T="JeepneySummary">
+                                    <MudListItem T="JeepneySummary" Class="px-4 py-2">
                                         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
                                             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
                                                 <MudAvatar Color="Color.Secondary" Size="Size.Small" Variant="Variant.Filled">
@@ -67,13 +72,15 @@ else
                                                 </MudAvatar>
                                                 <MudStack Spacing="0">
                                                     <MudText Typo="Typo.body2" Class="fw-bold">@j.PlateNumber</MudText>
-                                                    <MudText Typo="Typo.caption" Class="mud-text-secondary">@j.DriverName</MudText>
+                                                    @* <MudText Typo="Typo.caption" Class="mud-text-secondary">@j.DriverName</MudText> *@
                                                 </MudStack>
                                             </MudStack>
-                                            <MudIconButton Icon="@Icons.Material.Filled.OpenInNew" Size="Size.Small"
+                                            <MudIconButton Icon="@Icons.Material.Filled.OpenInNew"
+                                                           Size="Size.Small"
                                                            Href="@($"/jeepneys/{j.Id}")" />
                                         </MudStack>
                                     </MudListItem>
+                                    <MudDivider />
                                 }
                             </MudList>
                         }
@@ -83,17 +90,22 @@ else
             </MudStack>
         </MudItem>
 
-        @* ── Right column: stop timeline ── *@
+        @* ── Right column: stop sequence ── *@
         <MudItem xs="12" md="8">
             <MudCard Elevation="2" Style="border-radius:14px;">
                 <MudCardHeader>
                     <CardHeaderContent>
                         <MudText Typo="Typo.h6" Class="fw-bold">Stop Sequence</MudText>
-                        <MudText Typo="Typo.body2" Class="mud-text-secondary">Visual timeline of stops along this route.</MudText>
+                        <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                            Visual timeline of stops along this route.
+                        </MudText>
                     </CardHeaderContent>
                     <CardHeaderActions>
-                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small"
-                                   StartIcon="@Icons.Material.Filled.Edit" OnClick="OpenManageStopsDialog">
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Primary"
+                                   Size="Size.Small"
+                                   StartIcon="@Icons.Material.Filled.Edit"
+                                   OnClick="OpenManageStopsDialog">
                             Manage Stops
                         </MudButton>
                     </CardHeaderActions>
@@ -102,49 +114,247 @@ else
                 <MudCardContent>
                     @if (!_route.Stops.Any())
                     {
-                        <MudAlert Severity="Severity.Info" Dense="true">No stops defined for this route.</MudAlert>
+                        <MudAlert Severity="Severity.Info" Dense="true">
+                            No stops defined yet. Use "Manage Stops" to build the route sequence.
+                        </MudAlert>
                     }
                     else
                     {
                         <MudTimeline TimelinePosition="TimelinePosition.Start" Class="mt-2">
+
+                            @* Start *@
+                            <MudTimelineItem Color="Color.Primary" Size="Size.Medium" Variant="Variant.Filled">
+                                <ItemDot>
+                                    <MudIcon Icon="@Icons.Material.Filled.TripOrigin" Size="Size.Small" />
+                                </ItemDot>
+                                <ItemContent>
+                                    <MudStack Spacing="0">
+                                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                            <MudText Typo="Typo.body1" Class="fw-bold">@_route.LocationStart</MudText>
+                                            <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">Origin</MudChip>
+                                        </MudStack>
+                                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Start of route</MudText>
+                                    </MudStack>
+                                </ItemContent>
+                            </MudTimelineItem>
+
+                            @* Middle stops *@
                             @foreach (var stop in _route.Stops.OrderBy(s => s.StopIndex))
                             {
-                                bool isFirst = stop.StopIndex == _route.Stops.Min(s => s.StopIndex);
-                                bool isLast  = stop.StopIndex == _route.Stops.Max(s => s.StopIndex);
-
-                                <MudTimelineItem
-                                    Color="@(isFirst || isLast ? Color.Primary : Color.Default)"
-                                    Size="@(isFirst || isLast ? Size.Medium : Size.Small)"
-                                    Variant="@(isFirst || isLast ? Variant.Filled : Variant.Outlined)">
+                                <MudTimelineItem Color="Color.Default" Size="Size.Small" Variant="Variant.Outlined">
                                     <ItemDot>
-                                        <MudIcon Icon="@(isFirst ? Icons.Material.Filled.TripOrigin : isLast ? Icons.Material.Filled.Place : Icons.Material.Filled.FiberManualRecord)"
-                                                 Size="Size.Small" />
+                                        <MudIcon Icon="@Icons.Material.Filled.FiberManualRecord" Size="Size.Small" />
                                     </ItemDot>
                                     <ItemContent>
                                         <MudStack Spacing="0">
-                                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-                                                <MudText Typo="Typo.body1" Class="fw-bold">@stop.LocationName</MudText>
-                                                @if (isFirst)
-                                                {
-                                                    <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">Start</MudChip>
-                                                }
-                                                @if (isLast)
-                                                {
-                                                    <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">End</MudChip>
-                                                }
-                                            </MudStack>
+                                            <MudText Typo="Typo.body1" Class="fw-bold">@stop.LocationName</MudText>
                                             <MudText Typo="Typo.caption" Class="mud-text-secondary">Stop #@stop.StopIndex</MudText>
                                         </MudStack>
                                     </ItemContent>
                                 </MudTimelineItem>
                             }
+
+                            @* End *@
+                            <MudTimelineItem Color="Color.Primary" Size="Size.Medium" Variant="Variant.Filled">
+                                <ItemDot>
+                                    <MudIcon Icon="@Icons.Material.Filled.Place" Size="Size.Small" />
+                                </ItemDot>
+                                <ItemContent>
+                                    <MudStack Spacing="0">
+                                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                                            <MudText Typo="Typo.body1" Class="fw-bold">@_route.LocationEnd</MudText>
+                                            <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">Destination</MudChip>
+                                        </MudStack>
+                                        <MudText Typo="Typo.caption" Class="mud-text-secondary">End of route</MudText>
+                                    </MudStack>
+                                </ItemContent>
+                            </MudTimelineItem>
+
                         </MudTimeline>
                     }
                 </MudCardContent>
             </MudCard>
         </MudItem>
-
     </MudGrid>
+
+    @* ── Manage Stops Dialog ── *@
+    <MudDialog Visible="_dialogVisible" Options="_dialogOptions">
+        <TitleContent>
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudIcon Icon="@Icons.Material.Filled.Route" />
+                <MudText Typo="Typo.h6" Class="fw-bold">Build Route Sequence</MudText>
+            </MudStack>
+        </TitleContent>
+        <DialogContent>
+            <MudGrid Style="min-height:400px;">
+
+                @* ── Left: search & add ── *@
+                <MudItem xs="12" md="5">
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary mb-2 d-block">
+                        SEARCH & ADD STOPS
+                    </MudText>
+                    <MudTextField T="string"
+                                  Label="Search locations..."
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Dense"
+                                  Adornment="Adornment.End"
+                                  AdornmentIcon="@Icons.Material.Filled.Search"
+                                  Value="@_searchQuery"
+                                  ValueChanged="HandleSearchChange"
+                                  Immediate="true"
+                                  Clearable="true" />
+
+                    <MudDivider Class="my-3" />
+
+                    @if (_isSearching)
+                    {
+                        <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+                    }
+                    else if (!string.IsNullOrWhiteSpace(_searchQuery) && !_searchResults.Any())
+                    {
+                        <MudText Typo="Typo.body2" Class="mud-text-secondary text-center mt-4">
+                            No locations found.
+                        </MudText>
+                    }
+                    else
+                    {
+                        <MudList T="LocationDto" DisablePadding="true">
+                            @foreach (var loc in _searchResults)
+                            {
+                                bool alreadyAdded = _stops.Any(s => s.Id == loc.Id);
+                                <MudListItem T="LocationDto"
+                                             Disabled="@alreadyAdded"
+                                             OnClick="() => AddStop(loc)"
+                                             Class="rounded mb-1">
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                                        <MudStack Spacing="0">
+                                            <MudText Typo="Typo.body2" Class="fw-bold">@loc.Name</MudText>
+                                            <MudText Typo="Typo.caption" Class="mud-text-secondary">@loc.Description</MudText>
+                                        </MudStack>
+                                        <MudIcon Icon="@(alreadyAdded? Icons.Material.Filled.Check : Icons.Material.Filled.AddCircleOutline)"
+                                                 Size="Size.Small"
+                                                 Color="@(alreadyAdded ? Color.Success : Color.Primary)" />
+                                    </MudStack>
+                                </MudListItem>
+                            }
+                        </MudList>
+                    }
+                </MudItem>
+
+                @* ── Divider ── *@
+                <MudItem xs="12" md="1" Class="d-flex justify-center">
+                    <MudDivider Vertical="true" FlexItem="true" />
+                </MudItem>
+
+                @* route builder *@
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary mb-2 d-block">
+                        ROUTE SEQUENCE
+                    </MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary mb-3 d-block">
+                        Stops between <b>@_route.LocationStart</b> and <b>@_route.LocationEnd</b>
+                    </MudText>
+
+                    <MudTimeline TimelinePosition="TimelinePosition.Start">
+
+                        @* Fixed start *@
+                        <MudTimelineItem Color="Color.Primary" Size="Size.Small" Variant="Variant.Filled">
+                            <ItemContent>
+                                <MudPaper Outlined="true" Class="pa-3" Style="border-radius:8px; border-color:var(--mud-palette-primary);">
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                        <MudIcon Icon="@Icons.Material.Filled.TripOrigin" Size="Size.Small" Color="Color.Primary" />
+                                        <MudStack Spacing="0" Style="flex:1;">
+                                            <MudText Typo="Typo.body2" Class="fw-bold">@_route.LocationStart</MudText>
+                                            <MudText Typo="Typo.caption" Class="mud-text-secondary">Origin · cannot be changed</MudText>
+                                        </MudStack>
+                                    </MudStack>
+                                </MudPaper>
+                            </ItemContent>
+                        </MudTimelineItem>
+
+                        @* Dynamic stops *@
+                        @if (!_stops.Any())
+                        {
+                            <MudTimelineItem Color="Color.Default" Size="Size.Small" Variant="Variant.Outlined">
+                                <ItemContent>
+                                    <MudPaper Outlined="true" Class="pa-3" Style="border-radius:8px; border-style:dashed;">
+                                        <MudText Typo="Typo.body2" Class="mud-text-secondary text-center fst-italic">
+                                            Search and add stops on the left.
+                                        </MudText>
+                                    </MudPaper>
+                                </ItemContent>
+                            </MudTimelineItem>
+                        }
+                        else
+                        {
+                            @for (int i = 0; i < _stops.Count; i++)
+                            {
+                                var index = i;
+                                var stop = _stops[i];
+
+                                <MudTimelineItem Color="Color.Default" Size="Size.Small" Variant="Variant.Outlined">
+                                    <ItemContent>
+                                        <MudPaper Elevation="1" Class="pa-2" Style="border-radius:8px;">
+                                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                                <MudStack Spacing="0" Style="flex:1;">
+                                                    <MudText Typo="Typo.body2" Class="fw-bold">@stop.Name</MudText>
+                                                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Stop #@(index + 1)</MudText>
+                                                </MudStack>
+                                                <MudStack Row="true" Spacing="0">
+                                                    <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowUp"
+                                                                   Size="Size.Small"
+                                                                   Disabled="@(index == 0)"
+                                                                   OnClick="() => MoveStop(index, -1)" />
+                                                    <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowDown"
+                                                                   Size="Size.Small"
+                                                                   Disabled="@(index == _stops.Count - 1)"
+                                                                   OnClick="() => MoveStop(index, 1)" />
+                                                    <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline"
+                                                                   Size="Size.Small"
+                                                                   Color="Color.Error"
+                                                                   OnClick="() => RemoveStop(index)" />
+                                                </MudStack>
+                                            </MudStack>
+                                        </MudPaper>
+                                    </ItemContent>
+                                </MudTimelineItem>
+                            }
+                        }
+
+                        @* Fixed end *@
+                        <MudTimelineItem Color="Color.Primary" Size="Size.Small" Variant="Variant.Filled">
+                            <ItemContent>
+                                <MudPaper Outlined="true" Class="pa-3" Style="border-radius:8px; border-color:var(--mud-palette-primary);">
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                        <MudIcon Icon="@Icons.Material.Filled.Place" Size="Size.Small" Color="Color.Primary" />
+                                        <MudStack Spacing="0" Style="flex:1;">
+                                            <MudText Typo="Typo.body2" Class="fw-bold">@_route.LocationEnd</MudText>
+                                            <MudText Typo="Typo.caption" Class="mud-text-secondary">Destination · cannot be changed</MudText>
+                                        </MudStack>
+                                    </MudStack>
+                                </MudPaper>
+                            </ItemContent>
+                        </MudTimelineItem>
+
+                    </MudTimeline>
+                </MudItem>
+
+            </MudGrid>
+        </DialogContent>
+        <DialogActions>
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="w-100 px-2">
+                <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                    @_stops.Count intermediate stop(s)
+                </MudText>
+                <MudStack Row="true" Spacing="2">
+                    <MudButton OnClick="() => _dialogVisible = false">Cancel</MudButton>
+                    <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveStops">
+                        Save Sequence
+                    </MudButton>
+                </MudStack>
+            </MudStack>
+        </DialogActions>
+    </MudDialog>
 }
 
 @code {
@@ -153,42 +363,103 @@ else
     private RouteDetail? _route;
     private List<BreadcrumbItem> _breadcrumbs = new();
 
+    private bool _dialogVisible = false;
+    private DialogOptions _dialogOptions = new()
+    {
+        MaxWidth = MaxWidth.Large,
+        FullWidth = true,
+        CloseOnEscapeKey = true
+    };
+
+    private string _searchQuery = string.Empty;
+    private List<LocationDto> _searchResults = new();
+    private List<LocationDto> _stops = new();
+    private bool _isSearching = false;
+    private CancellationTokenSource? _cts;
+
     protected override async Task OnInitializedAsync()
     {
-        // Replace with: _route = await RouteService.GetProfileAsync(Id);
-        await Task.Delay(300);
-
-        _route = new RouteDetail
-        {
-            Id = Id,
-            RouteCode = "01A",
-            LocationStart = "Ayala Center Cebu",
-            LocationEnd = "Carbon Market",
-            Stops = new List<RouteStopDto>
-            {
-                new() { StopIndex = 0, LocationName = "Ayala Center Cebu" },
-                new() { StopIndex = 1, LocationName = "IT Park" },
-                new() { StopIndex = 2, LocationName = "Colon Street" },
-                new() { StopIndex = 3, LocationName = "Carbon Market" },
-            },
-            AssignedJeepneys = new List<JeepneySummary>
-            {
-                new() { Id = 1, PlateNumber = "ABX 1234", DriverName = "Juan Dela Cruz" },
-                new() { Id = 2, PlateNumber = "CDY 5678", DriverName = "Maria Santos" },
-            }
-        };
+        _route = await Http.GetFromJsonAsync<RouteDetail>($"/api/v1/routes/{Id}");
 
         _breadcrumbs = new List<BreadcrumbItem>
         {
             new("Routes", href: "/routes"),
-            new(_route.RouteCode, href: null, disabled: true)
+            new(_route!.RouteCode, href: null, disabled: true)
         };
     }
 
     private void OpenManageStopsDialog()
     {
-        // Replace with manage stops dialog or navigate to edit
+        _stops = _route!.Stops
+            .OrderBy(s => s.StopIndex)
+            .Select(s => new LocationDto { Id = s.LocationId, Name = s.LocationName })
+            .ToList();
+
+        _searchQuery = string.Empty;
+        _searchResults = new();
+        _dialogVisible = true;
     }
 
+    private async Task HandleSearchChange(string query)
+    {
+        _searchQuery = query;
+        _cts?.Cancel();
+        _cts = new CancellationTokenSource();
 
+        if (string.IsNullOrWhiteSpace(query))
+        {
+            _searchResults = new();
+            return;
+        }
+        try
+        {
+            _isSearching = true;
+            await Task.Delay(300, _cts.Token);
+            _searchResults = await Http.GetFromJsonAsync<List<LocationDto>>(
+                $"/api/v1/options/locations/search?query={Uri.EscapeDataString(query)}",
+                _cts.Token) ?? new();
+        }
+        catch (TaskCanceledException) { }
+        finally
+        {
+            _isSearching = false;
+        }
+    }
+
+    private void AddStop(LocationDto loc)
+    {
+        if (_stops.Any(s => s.Id == loc.Id)) return;
+        _stops.Add(loc);
+    }
+
+    private void RemoveStop(int index) => _stops.RemoveAt(index);
+
+    private void MoveStop(int index, int direction)
+    {
+        var item = _stops[index];
+        _stops.RemoveAt(index);
+        _stops.Insert(index + direction, item);
+    }
+
+    private async Task SaveStops()
+    {
+        var stops = _stops.Select((s, i) => new LocationIndexPair { LocationId = s.Id, Index = i + 1}).ToList();
+        var request = new AddRouteStopRequest
+            {
+                RouteId = Id,
+                RouteStops = stops
+            };
+        var response = await Http.PutAsJsonAsync($"/api/v1/routes/{Id}/stops", request);
+
+        if (response.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Route sequence saved.", Severity.Success);
+            _dialogVisible = false;
+            _route = await Http.GetFromJsonAsync<RouteDetail>($"/api/v1/routes/{Id}");
+        }
+        else
+        {
+            Snackbar.Add("Something went wrong.", Severity.Error);
+        }
+    }
 }
