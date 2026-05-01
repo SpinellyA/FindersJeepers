@@ -6,6 +6,7 @@
 @using MudBlazor
 @inject ISnackbar Snackbar
 
+<MudContainer MaxWidth="MaxWidth.False" Class="pa-6">
 
 <MudText Typo="Typo.h4" Class="mb-1 fw-bold">Drivers</MudText>
 <MudText Typo="Typo.body2" Class="mb-4 mud-text-secondary">Manage all registered jeepney drivers.</MudText>
@@ -94,6 +95,7 @@ else
     }
 </MudGrid>
 }
+</MudContainer>
 
 @* Add/Edit Dialog *@
 <MudDialog Visible="_dialogVisible" Options="_dialogOptions" OnBackdropClick="CloseDialog" >
@@ -126,9 +128,6 @@ else
         </MudButton>
     </DialogActions>
 </MudDialog>
-
-<MudText>Dialog: @_dialogVisible</MudText>
-
 @code {
     private string _search = string.Empty;
     private bool _dialogVisible = false;

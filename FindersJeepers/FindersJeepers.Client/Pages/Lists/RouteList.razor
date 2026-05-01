@@ -3,6 +3,9 @@
 @inject HttpClient Http
 @inject ISnackbar Snackbar
 
+<MudContainer MaxWidth="MaxWidth.False" Class="pa-6">
+
+
 <MudText Typo="Typo.h4" Class="mb-1 fw-bold">Routes & Stops</MudText>
 <MudText Typo="Typo.body2" Class="mb-4 mud-text-secondary">Define jeepney routes and their stop sequences.</MudText>
 
@@ -88,6 +91,7 @@ else
         }
     </MudGrid>
 }
+</MudContainer>
 
 @* Add/Edit Route Dialog *@
 <MudDialog Visible="_dialogVisible" Options="_dialogOptions">

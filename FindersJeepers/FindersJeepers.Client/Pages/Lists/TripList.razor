@@ -1,6 +1,9 @@
 ﻿@page "/trips"
 @using MudBlazor
 
+<MudContainer MaxWidth="MaxWidth.False" Class="pa-6">
+
+
 <MudText Typo="Typo.h4" Class="mb-1 fw-bold">Trips & Logs</MudText>
 <MudText Typo="Typo.body2" Class="mb-4 mud-text-secondary">Monitor active and completed jeepney trips.</MudText>
 
@@ -106,6 +109,8 @@ else
     </MudGrid>
 }
 
+</MudContainer>
+
 @* Create Trip Dialog *@
 <MudDialog Visible="_dialogVisible" Options="_dialogOptions">
     <TitleContent>
@@ -128,7 +133,6 @@ else
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveTrip">Create</MudButton>
     </DialogActions>
 </MudDialog>
-
 @* Log Stop Event Dialog *@
 <MudDialog Visible="_logDialogVisible" Options="_dialogOptions">
     <TitleContent>
@@ -160,7 +164,6 @@ else
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveLog">Log Event</MudButton>
     </DialogActions>
 </MudDialog>
-
 @* View Logs Dialog *@
 <MudDialog Visible="_logsPanelVisible" Options="_logsDialogOptions">
     <TitleContent>

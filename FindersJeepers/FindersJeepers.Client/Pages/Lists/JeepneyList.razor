@@ -4,6 +4,9 @@
 @inject ISnackbar Snackbar
 @inject NavigationManager nav
 
+<MudContainer MaxWidth="MaxWidth.False" Class="pa-6">
+
+
 <MudText Typo="Typo.h4" Class="mb-1 fw-bold">Jeepneys</MudText>
 <MudText Typo="Typo.body2" Class="mb-4 mud-text-secondary">Manage your fleet of jeepneys.</MudText>
 
@@ -79,6 +82,7 @@ else
         }
     </MudGrid>
 }
+</MudContainer>
 
 <MudDialog Visible="_dialogVisible" Options="_dialogOptions">
     <TitleContent>

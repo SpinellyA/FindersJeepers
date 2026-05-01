@@ -3,6 +3,9 @@
 @inject HttpClient Http
 @inject ISnackbar Snackbar
 
+<MudContainer MaxWidth="MaxWidth.False" Class="pa-6">
+
+
 <MudText Typo="Typo.h4" Class="mb-1 fw-bold">Locations</MudText>
 <MudText Typo="Typo.body2" Class="mb-4 mud-text-secondary">Manage all stop locations in the system.</MudText>
 
@@ -64,6 +67,7 @@ else
         }
     </MudGrid>
 }
+</MudContainer>
 
 @* Add/Edit Dialog *@
 <MudDialog Visible="_dialogVisible" Options="_dialogOptions">
