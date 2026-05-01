@@ -31,7 +31,7 @@ public class JeepneyController : ControllerBase
         return Created();
     }
 
-    [HttpPut("{jeepneyId:int}/drivers/")]
+    [HttpPost("{jeepneyId:int}/drivers/")]
     public async Task<IActionResult> AssignDrivers(int jeepneyId, [FromBody] AssignDriversRequest req)
     {
         if (jeepneyId != req.JeepId)
