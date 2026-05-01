@@ -118,23 +118,33 @@ public class JeepService : IJeepService
     public async Task<List<JeepneyDriverDto>> GetJeepneyDriversAsync(int jeepId)
     {
         var jeep = await _uow.Jeepneys.GetByIdAsync(jeepId);
+        if (jeep == null) throw new InvalidIdException("Jeepney not found!");
 
+        var activeJeepDrivers = jeep.Drivers
+            .Where(j => j.UnassignedAt == null)
+            .ToList();
+
+        var activeDriverIds = activeJeepDrivers
+            .Select(j => j.DriverId)
+            .ToList();
+        var drivers = await _uow.Drivers.Get()
+            .Where(d => activeDriverIds.Contains(d.Id))
+            .ToListAsync();
         return (
-            from j in jeep.Drivers
-            join d in _uow.Drivers.Get() on j.DriverId equals d.Id
+            from d in drivers
+            join j in activeJeepDrivers on d.Id equals j.DriverId
             select new JeepneyDriverDto
             {
                 Id = d.Id,
-                AssignedAt = j.AssignedAt,
                 FirstName = d.FirstName,
                 LastName = d.LastName,
+                AssignedAt = j.AssignedAt
             }
-            ).ToList();
+        ).ToList();
     }
-
     public async Task RemoveDriverAsync(int driverId, int jeepneyId)
     {
-        var jeep = await _uow.Jeepneys.GetByIdAsync(driverId);
+        var jeep = await _uow.Jeepneys.GetByIdAsync(jeepneyId);
         jeep.RemoveDriver(driverId);
         _uow.Jeepneys.Update(jeep);
         await _uow.SaveChangesAsync();
