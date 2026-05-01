@@ -2,6 +2,7 @@
 @using MudBlazor
 @inject HttpClient Http
 @inject ISnackbar Snackbar
+@inject NavigationManager Navigation
 
 <MudContainer MaxWidth="MaxWidth.False" Class="pa-6">
 
@@ -39,7 +40,7 @@ else
         @foreach (var route in FilteredRoutes)
         {
             <MudItem xs="12" sm="6" md="4">
-                    <MudCard Elevation="2" Style="border-radius:12px;" Class="transition-card">
+                    <MudCard Elevation="2" Style="border-radius:12px;" Class="transition-card" @onclick="() => NavigateToRoute(route.Id)">
                     <MudCardHeader>
                         <CardHeaderAvatar>
                             <MudAvatar Color="Color.Tertiary" Size="Size.Large" Variant="Variant.Filled">
@@ -49,7 +50,7 @@ else
                         <CardHeaderContent>
                             <MudText Typo="Typo.subtitle1" Class="fw-bold">@route.RouteCode</MudText>
                             <MudText Typo="Typo.caption" Class="mud-text-secondary">
-                                @route.LocationStart → @route.LocationEnd
+                                @route.LocationStart -> @route.LocationEnd
                             </MudText>
                         </CardHeaderContent>
                         <CardHeaderActions>
@@ -193,6 +194,8 @@ else
         await Task.Delay(500);
         await LoadData();
     }
+
+    private void NavigateToRoute(int id) => Navigation.NavigateTo($"/routes/{id}");
 
     private async Task LoadData()
     {
