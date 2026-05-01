@@ -28,17 +28,74 @@ public class RouteService : IRouteService
             RouteCode = r.RouteCode,
             LocationStart = ls.Name,
             LocationEnd = le.Name,
-            Stops = new()
+            Stops = (from rs in r.Stops
+                     join l in _uow.Locations.Get() on rs.LocationId equals l.Id
+                    select new RouteStopDto
+                    {
+                        LocationId = rs.LocationId,
+                        LocationName = l.Name,
+                        StopIndex = rs.StopIndex
+                    }).ToList()
         }
     ).ToListAsync();
 
         return result;
     }
 
+    public async Task<RouteDetail> GetRoute(int routeId)
+    {
+        var route = await _uow.Routes.GetByIdAsync(routeId);
+
+        var locationStart = await _uow.Locations.GetByIdAsync(route.LocationStartId);
+        var locationEnd = await _uow.Locations.GetByIdAsync(route.LocationEndId);
+
+        var stops = (from r in route.Stops
+                     join l in _uow.Locations.Get() on r.LocationId equals l.Id
+                     select new RouteStopDto
+                     {
+                         LocationId = l.Id,
+                         LocationName = l.Name,
+                         StopIndex = r.StopIndex,
+                     }).ToList();
+
+        var assignedJeepneys = await (from j in _uow.Jeepneys.Get()
+                                where j.RouteId == route.Id
+                                select new JeepneySummary
+                                {
+                                    Id = j.Id,
+                                    BodyNumber = j.BodyNumber,
+                                    Capacity = j.Capacity,
+                                    PlateNumber = j.PlateNumber,
+                                    RouteCode = route.RouteCode,
+                                }).ToListAsync();
+
+        return new RouteDetail
+        {
+            AssignedJeepneys = assignedJeepneys,
+            Id = route.Id,
+            LocationEnd = locationEnd.Name,
+            LocationStart = locationStart.Name,
+            RouteCode = route.RouteCode,
+            Stops = stops
+        };
+    }
+
     public async Task CreateRouteAsync(CreateRouteRequest req)
     {
         var route = Route.Create(req.RouteCode, req.StartLocation, req.EndLocation);
         await _uow.Routes.AddAsync(route);
+        await _uow.SaveChangesAsync();
+    }
+
+    public async Task AddRouteStopsAsync(AddRouteStopRequest req)
+    {
+        var route = await _uow.Routes.GetByIdAsync(req.RouteId);
+        route.ClearStops();
+        foreach (var stop in req.RouteStops)
+        {
+            route.AddStop(stop.LocationId, stop.Index);
+        }
+        _uow.Routes.Update(route);
         await _uow.SaveChangesAsync();
     }
 
