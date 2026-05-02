@@ -5,5 +5,6 @@
     public string LocationStart { get; set; } = string.Empty;
     public string LocationEnd { get; set; } = string.Empty;
     public List<RouteStopDto> Stops { get; set; } = new();
+    public List<RouteStopDto> ReturnStops { get; set; } = new();
     public List<JeepneySummary> AssignedJeepneys { get; set; } = new();
 }
