@@ -50,6 +50,7 @@ public class RouteService : IRouteService
         var locationEnd = await _uow.Locations.GetByIdAsync(route.LocationEndId);
 
         var stops = (from r in route.Stops
+                     where r.Direction == RouteDirection.Forward
                      join l in _uow.Locations.Get() on r.LocationId equals l.Id
                      select new RouteStopDto
                      {
@@ -57,6 +58,15 @@ public class RouteService : IRouteService
                          LocationName = l.Name,
                          StopIndex = r.StopIndex,
                      }).ToList();
+        var rStops = (from r in route.Stops
+                      where r.Direction == RouteDirection.Return
+                      join l in _uow.Locations.Get() on r.LocationId equals l.Id
+                      select new RouteStopDto
+                      {
+                          LocationId = l.Id,
+                          LocationName = l.Name,
+                          StopIndex = r.StopIndex,
+                      }).ToList();
 
         var assignedJeepneys = await (from j in _uow.Jeepneys.Get()
                                 where j.RouteId == route.Id
@@ -76,7 +86,8 @@ public class RouteService : IRouteService
             LocationEnd = locationEnd.Name,
             LocationStart = locationStart.Name,
             RouteCode = route.RouteCode,
-            Stops = stops
+            Stops = stops,
+            ReturnStops = rStops
         };
     }
 
@@ -90,11 +101,15 @@ public class RouteService : IRouteService
     public async Task AddRouteStopsAsync(AddRouteStopRequest req)
     {
         var route = await _uow.Routes.GetByIdAsync(req.RouteId);
-        route.ClearStops();
-        foreach (var stop in req.RouteStops)
-        {
-            route.AddStop(stop.LocationId, stop.Index);
-        }
+        if (req.RouteDirection == RouteDirection.Forward)
+                route.ClearStops();
+        else if (req.RouteDirection == RouteDirection.Return)
+                route.ClearReturnStops();
+
+            foreach (var stop in req.RouteStops)
+            {
+                route.AddStop(stop.LocationId, stop.Index, req.RouteDirection);
+            }
         _uow.Routes.Update(route);
         await _uow.SaveChangesAsync();
     }

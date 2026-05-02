@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.InteropServices;
 using System.Xml.Linq;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 /// <summary>
 /// // This service is responsible for the queries and processing of option DTOs.
@@ -70,10 +71,10 @@ public class OptionService : IOptionService
     
     public async Task<List<LocationDto>> SearchLocations(string query)
     {
-        if (string.IsNullOrWhiteSpace(query)) return new();
+
 
         return await _uow.Locations.Get()
-            .Where(x => x.Name.Contains(query))
+            .Where(x => EF.Functions.ILike(x.Name, $"%{query}"))
             //.Take(10)
             .Select(x => new LocationDto
             {
@@ -83,5 +84,17 @@ public class OptionService : IOptionService
             })
             .ToListAsync();
 
+    }
+
+    public async Task<List<LocationDto>> GetLocations()
+    {
+            return await _uow.Locations.Get()
+                .Take(10)
+                .Select(x => new LocationDto
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Description = x.Description,
+                }).ToListAsync();
     }
 } 

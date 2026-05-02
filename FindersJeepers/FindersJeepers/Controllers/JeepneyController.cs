@@ -30,6 +30,12 @@ public class JeepneyController : ControllerBase
         await jeepService.CreateAsync(req);
         return Created();
     }
+    [HttpPut("{jeepneyId:int}")]
+    public async Task<IActionResult> UpdateJeepney(int jeepneyId, [FromBody] UpdateJeepneyRequest req)
+    {
+        await jeepService.UpdateAsync(req);
+        return Ok();
+    }
 
     [HttpPost("{jeepneyId:int}/drivers/")]
     public async Task<IActionResult> AssignDrivers(int jeepneyId, [FromBody] AssignDriversRequest req)

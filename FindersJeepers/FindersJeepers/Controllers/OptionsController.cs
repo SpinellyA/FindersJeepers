@@ -29,8 +29,13 @@ public class OptionsController : ControllerBase
     [HttpGet("locations/search")]
     public async Task<IActionResult> SearchLocations([FromQuery] string query)
     {
-        if (string.IsNullOrWhiteSpace(query)) return Ok(new());
         var result = await _optionService.SearchLocations(query);
+        return Ok(result);
+    }
+    [HttpGet("locations/")]
+    public async Task<IActionResult> GetLocations()
+    {
+        var result = await _optionService.GetLocations();
         return Ok(result);
     }
 
