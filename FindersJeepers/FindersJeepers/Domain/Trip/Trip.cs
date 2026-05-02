@@ -4,6 +4,7 @@ public class Trip : AggregateRoot
     public int DriverId { get; private set; } // Composite Key
     public int JeepneyId { get; private set; } // Composite Key
     public int RouteId { get; private set; } // We dont really need this, right?
+    public RouteDirection Direction { get; private set; }
 
     public DateTime? DepartureTime {  get; private set; }
     public DateTime? ArrivalTime { get; private set; }
@@ -15,7 +16,7 @@ public class Trip : AggregateRoot
     private Trip()
     {
     }
-    public static Trip Create(int driverId, int jeepneyId, int routeId)
+    public static Trip Create(int driverId, int jeepneyId, int routeId, RouteDirection routeDirection)
     {
         if(!IdValidator.ValidateId(jeepneyId)) throw new DomainException("Invalid jeepney ID!");
         if (!IdValidator.ValidateId(routeId)) throw new DomainException("Invalid jeepney ID!");
@@ -27,7 +28,8 @@ public class Trip : AggregateRoot
             RouteId = routeId,
             DepartureTime = null,
             ArrivalTime = null,
-            Status = TripStatus.Waiting
+            Status = TripStatus.Waiting,
+            Direction = routeDirection
         };
     }
 
@@ -50,14 +52,14 @@ public class Trip : AggregateRoot
         ArrivalTime = DateTime.UtcNow;
     }
 
-    public void LogStopEvent(int stopId, int passengerCount, TripLogType logType)
+    public void LogStopEvent(int stopId, int passengerCount, int capacity, TripLogType logType)
     {
         // i arrive at ayala with N people. When you arrive, CLASSIFY ONLY THOSE WHO GET OFF THE JEEP.
         // i depart from ayala with N people. When departing, CLASSIFY ONLY THOSE WHO HAVE GET ON THE JEEP.
 
         if (Status != TripStatus.OnGoing) throw new DomainException("Trip has not started yet!");
 
-        var log = TripLog.Create(this.Id, stopId, passengerCount, logType);
+        var log = TripLog.Create(this.Id, stopId, passengerCount,capacity, logType);
         _logs.Add(log);
         // Event: if this log is Route.LocationStopId then complete this trip.
         // Event: if passengerCount is equal to Jeepney.Capacity, Jeepney.Status will be Status.Full

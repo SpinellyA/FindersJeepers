@@ -4,6 +4,7 @@ public class TripLog // belongs to trip
     public int TripId { get; private set; } // composite key
     public int StopId { get; private set; } 
     public int PassengerCount { get; private set; }
+    public int Capacity { get; private set; }
     public DateTime TimeStamp { get; private set; }
     public TripLogType EventType {  get; private set; }
 
@@ -12,7 +13,7 @@ public class TripLog // belongs to trip
          
     }
 
-    public static TripLog Create(int tripId, int stopId, int passengerCount, TripLogType eventType) 
+    public static TripLog Create(int tripId, int stopId, int passengerCount, int capacity, TripLogType eventType) 
     {
         if (!IdValidator.ValidateId(tripId)) throw new DomainException("Invalid Trip Id!");
         if (!IdValidator.ValidateId(stopId)) throw new DomainException("Invalid Stop Id");
@@ -24,6 +25,7 @@ public class TripLog // belongs to trip
             StopId = stopId,
             PassengerCount = passengerCount,
             EventType = eventType,
+            Capacity = capacity,
             TimeStamp = DateTime.UtcNow
         };
     }
