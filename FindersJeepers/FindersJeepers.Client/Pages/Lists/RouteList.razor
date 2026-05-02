@@ -41,53 +41,64 @@ else
         {
             <MudItem xs="12" sm="6" md="4">
                     <MudCard Elevation="2" Style="border-radius:12px;" Class="transition-card" @onclick="() => NavigateToRoute(route.Id)">
-                    <MudCardHeader>
-                        <CardHeaderAvatar>
-                            <MudAvatar Color="Color.Tertiary" Size="Size.Large" Variant="Variant.Filled">
-                                <MudIcon Icon="@Icons.Material.Filled.AltRoute" />
-                            </MudAvatar>
-                        </CardHeaderAvatar>
-                        <CardHeaderContent>
-                            <MudText Typo="Typo.subtitle1" Class="fw-bold">@route.RouteCode</MudText>
-                            <MudText Typo="Typo.caption" Class="mud-text-secondary">
-                                @route.LocationStart -> @route.LocationEnd
-                            </MudText>
-                        </CardHeaderContent>
-                        <CardHeaderActions>
-                            <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small">
-                                @* <MudMenuItem OnClick="() => OpenStopsPanel(route)">Manage Stops</MudMenuItem> *@
-                                <MudMenuItem OnClick="() => OpenEditDialog(route)">Edit</MudMenuItem>
-                                <MudMenuItem OnClick="() => ConfirmDelete(route)">
-                                    <MudText Color="Color.Error">Delete</MudText>
-                                </MudMenuItem>
-                            </MudMenu>
-                        </CardHeaderActions>
-                    </MudCardHeader>
-                    <MudDivider />
-                    <MudCardContent Class="pt-3">
-                        @if (route.Stops.Any())
-                        {
-                            <MudText Typo="Typo.caption" Class="mud-text-secondary mb-2">STOPS (@route.Stops.Count)</MudText>
-                            <MudList T="RouteStopDto" Dense="true" DisablePadding="true">
-                                @foreach (var stop in route.Stops.OrderBy(s => s.StopIndex))
-                                {
-                                    <MudListItem T="RouteStopDto">
-                                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                                            <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">
-                                                @stop.StopIndex
-                                            </MudChip>
-                                            <MudText Typo="Typo.body2">@stop.LocationName</MudText>
-                                        </MudStack>
-                                    </MudListItem>
-                                }
-                            </MudList>
-                        }
-                        else
-                        {
-                            <MudText Typo="Typo.body2" Class="mud-text-secondary fst-italic">No stops defined yet.</MudText>
-                        }
-                    </MudCardContent>
-                </MudCard>
+                        <MudCardHeader>
+                            <CardHeaderAvatar>
+                                <MudAvatar Color="Color.Tertiary" Size="Size.Large" Variant="Variant.Filled">
+                                    <MudIcon Icon="@Icons.Material.Filled.AltRoute" />
+                                </MudAvatar>
+                            </CardHeaderAvatar>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.subtitle1" Class="fw-bold">@route.RouteCode</MudText>
+                                <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                                    @route.Stops.Count stop@(route.Stops.Count == 1 ? "" : "s")
+                                </MudText>
+                            </CardHeaderContent>
+                            <CardHeaderActions>
+                                <MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" @onclick:stopPropagation>
+                                    <MudMenuItem OnClick="() => OpenEditDialog(route)">Edit</MudMenuItem>
+                                    <MudMenuItem OnClick="() => ConfirmDelete(route)">
+                                        <MudText Color="Color.Error">Delete</MudText>
+                                    </MudMenuItem>
+                                </MudMenu>
+                            </CardHeaderActions>
+                        </MudCardHeader>
+                        <MudDivider />
+                        <MudCardContent Class="pt-3 pb-3">
+
+                            @* Route strip *@
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="0">
+
+                                @* Origin *@
+                                <MudStack Spacing="0" AlignItems="AlignItems.Center" Style="min-width:0; flex:1;">
+                                    <MudIcon Icon="@Icons.Material.Filled.TripOrigin" Size="Size.Small" Color="Color.Tertiary" />
+                                    <MudText Typo="Typo.caption" Class="fw-bold mud-text-primary text-truncate" Style="max-width:90px; text-align:center;">
+                                        @route.LocationStart
+                                    </MudText>
+                                </MudStack>
+
+                                @* Line + stop count *@
+                                <MudStack Spacing="0" AlignItems="AlignItems.Center" Style="flex:2; position:relative;">
+                                    <MudDivider Style="width:100%; border-style:dashed;" />
+                                    <MudChip T="string"
+                                             Size="Size.Small"
+                                             Color="Color.Tertiary"
+                                             Variant="Variant.Filled"
+                                             Style="position:absolute; top:-11px; font-size:0.65rem; height:22px; pointer-events:none;">
+                                        @(route.Stops.Any() ? $"{route.Stops.Count} stops" : "no stops")
+                                    </MudChip>
+                                </MudStack>
+
+                                @* Destination *@
+                                <MudStack Spacing="0" AlignItems="AlignItems.Center" Style="min-width:0; flex:1;">
+                                    <MudIcon Icon="@Icons.Material.Filled.Place" Size="Size.Small" Color="Color.Tertiary" />
+                                    <MudText Typo="Typo.caption" Class="fw-bold mud-text-primary text-truncate" Style="max-width:90px; text-align:center;">
+                                        @route.LocationEnd
+                                    </MudText>
+                                </MudStack>
+
+                            </MudStack>
+                        </MudCardContent>
+                    </MudCard>
             </MudItem>
         }
     </MudGrid>
