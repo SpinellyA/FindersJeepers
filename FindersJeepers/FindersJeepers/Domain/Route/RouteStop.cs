@@ -1,17 +1,14 @@
-public class RouteStop // belongs to route, right?
+public class RouteStop
 {
-    // PK is Id
-    public int Id { get; private set; } // PK
-    public int RouteId { get; private set; }  
-    public int LocationId { get; private set; } 
-    public int StopIndex { get; private set; } // what position this is in the route's stops
+    public int Id { get; private set; }
+    public int RouteId { get; private set; }
+    public int LocationId { get; private set; }
+    public int StopIndex { get; private set; }
+    public RouteDirection Direction { get; private set; }
 
-    private RouteStop()
-    {
-         
-    }
+    private RouteStop() { }
 
-    public static RouteStop Create(int routeId, int locationId, int stopIndex)
+    public static RouteStop Create(int routeId, int locationId, int stopIndex, RouteDirection direction)
     {
         if (routeId < 1) throw new DomainException("Invalid route id!");
         if (locationId < 1) throw new DomainException("Invalid location id!");
@@ -21,7 +18,9 @@ public class RouteStop // belongs to route, right?
         {
             RouteId = routeId,
             LocationId = locationId,
-            StopIndex = stopIndex
+            StopIndex = stopIndex,
+            Direction = direction
         };
     }
 }
+

@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 public class Route : AggregateRoot
 {
     public int Id { get; private set; }
@@ -5,13 +7,19 @@ public class Route : AggregateRoot
     public int LocationStartId { get; private set; }
     public int LocationEndId { get; private set; }
 
-    private readonly List<RouteStop> _stops = new List<RouteStop>();
+    private readonly List<RouteStop> _stops = new();
     public IReadOnlyCollection<RouteStop> Stops => _stops;
 
-    private Route()
-    {
-         
-    }
+    [NotMapped]
+    public IEnumerable<RouteStop> ForwardStops =>
+        _stops.Where(s => s.Direction == RouteDirection.Forward).OrderBy(s => s.StopIndex);
+
+    [NotMapped]
+    public IEnumerable<RouteStop> ReturnStops =>
+        _stops.Where(s => s.Direction == RouteDirection.Return).OrderBy(s => s.StopIndex);
+
+    private Route() { }
+
     public static Route Create(string routeCode, int locationStartId, int locationEndId)
     {
         if (string.IsNullOrEmpty(routeCode)) throw new DomainException("Route Code cannot be empty!");
@@ -24,15 +32,37 @@ public class Route : AggregateRoot
             LocationStartId = locationStartId,
             LocationEndId = locationEndId,
         };
-
     }
 
-    public void AddStop(int locationId, int index)
+    public void AddStop(int locationId, int index, RouteDirection direction)
     {
         if (locationId < 1) throw new DomainException("Invalid location id!");
-
-        _stops.Add(RouteStop.Create(this.Id, locationId, index));
+        _stops.Add(RouteStop.Create(this.Id, locationId, index, direction));
     }
-    public void ClearStops() => _stops.Clear(); // might wanna raise domain event here
 
+    //public int GetNextStop(int index, RouteDirection direction)
+    //{
+        
+    //}
+
+
+
+    public void GenerateReturnStopsFromForward()
+    {
+        var forwardStops = ForwardStops.ToList();
+        if (!forwardStops.Any())
+            throw new DomainException("Cannot generate return stops — no forward stops defined.");
+
+        ClearReturnStops();
+
+        var reversed = forwardStops
+            .OrderByDescending(s => s.StopIndex)
+            .Select((s, i) => RouteStop.Create(this.Id, s.LocationId, i, RouteDirection.Return))
+            .ToList();
+
+        _stops.AddRange(reversed);
+    }
+
+    public void ClearStops() => _stops.RemoveAll(s => s.Direction == RouteDirection.Forward);
+    public void ClearReturnStops() => _stops.RemoveAll(s => s.Direction == RouteDirection.Return);
 }
