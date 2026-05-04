@@ -5,7 +5,7 @@
     Task DeleteAsync(int jeepId);
 
     Task<List<JeepneyDto>> GetAsync(int pageNumber = -1, int pageSize = -1);
-    Task<JeepneyDetail> GetByIdAsync(int jeepId);
+    Task<JeepneyDetail> GetDetail(int jeepId);
 
     Task AssignDriversAsync(AssignDriversRequest request);
     Task<List<JeepneyDriverDto>> GetJeepneyDriversAsync(int jeepId);

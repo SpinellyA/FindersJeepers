@@ -40,12 +40,6 @@ public class Route : AggregateRoot
         _stops.Add(RouteStop.Create(this.Id, locationId, index, direction));
     }
 
-    //public int GetNextStop(int index, RouteDirection direction)
-    //{
-        
-    //}
-
-
 
     public void GenerateReturnStopsFromForward()
     {

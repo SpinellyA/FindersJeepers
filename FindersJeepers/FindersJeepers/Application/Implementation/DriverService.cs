@@ -68,7 +68,7 @@ public class DriverService : IDriverService
         await _uow.SaveChangesAsync();
     }
 
-    public async Task<DriverDetail> GetByIdAsync(int driverId)
+    public async Task<DriverDetail> GetDetail(int driverId)
     {
         var driver = await _uow.Drivers.GetByIdAsync(driverId);
         if (driver == null) throw new InvalidIdException("Invalid driver ID!");

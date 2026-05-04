@@ -1,8 +1,8 @@
 ﻿
 public interface IRouteService
     {
-    Task<List<RouteDto>> GetRoutes();
+    Task<List<RouteDto>> GetRoutesAsync();
     Task CreateRouteAsync(CreateRouteRequest req);
-    Task<RouteDetail> GetRoute(int routeId);
+    Task<RouteDetail> GetDetailAsync(int routeId);
     Task AddRouteStopsAsync(AddRouteStopRequest req);
 }

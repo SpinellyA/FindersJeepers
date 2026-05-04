@@ -1,5 +1,7 @@
 ﻿@page "/trips/{Id:int}"
 @using MudBlazor
+@inject HttpClient Http
+@inject ISnackbar Snackbar
 
 @if (_trip is null)
 {
@@ -241,12 +243,16 @@ else
             return $"{(int)dur.TotalHours}h {dur.Minutes}m";
         }
     }
+    private async Task LoadData()
+    {
+        _trip = await Http.GetFromJsonAsync<TripDetailDto>($"/api/v1/trips/{Id}");
+    }
 
     protected override async Task OnInitializedAsync()
     {
         // Replace with: _trip = await TripService.GetProfileAsync(Id);
         await Task.Delay(300);
-
+        await LoadData();
         _availableStops = new List<StopOption>
         {
             new() { Id = 1, Name = "Ayala Center Cebu" },
@@ -254,27 +260,6 @@ else
             new() { Id = 3, Name = "Colon Street" },
             new() { Id = 4, Name = "Carbon Market" },
         };
-
-        _trip = new TripDetailDto
-        {
-            Id = Id,
-            JeepneyId = 1,
-            PlateNumber = "ABX 1234",
-            RouteId = 1,
-            RouteCode = "01A - Ayala-Carbon",
-            Status = "OnGoing",
-            Capacity = 16,
-            DepartureTime = DateTime.Now.AddHours(-1).AddMinutes(-20),
-            ArrivalTime = null,
-            Logs = new List<TripLogDto>
-            {
-                new() { StopName = "Ayala Center Cebu", EventType = "Departure", PassengerCount = 12, Timestamp = DateTime.Now.AddHours(-1).AddMinutes(-20) },
-                new() { StopName = "IT Park",           EventType = "Arrival",   PassengerCount = 9,  Timestamp = DateTime.Now.AddMinutes(-50) },
-                new() { StopName = "IT Park",           EventType = "Departure", PassengerCount = 15, Timestamp = DateTime.Now.AddMinutes(-45) },
-                new() { StopName = "Colon Street",      EventType = "Arrival",   PassengerCount = 11, Timestamp = DateTime.Now.AddMinutes(-20) },
-            }
-        };
-
         _breadcrumbs = new List<BreadcrumbItem>
         {
             new("Trips", href: "/trips"),
@@ -300,16 +285,31 @@ else
 
     private async Task StartTrip()
     {
-        // Replace with: await TripService.StartTripAsync(Id);
-        _trip!.Status = "OnGoing";
-        _trip.DepartureTime = DateTime.Now;
+        var response = await Http.PutAsJsonAsync($"/api/v1/trips/{Id}/start", new{});
+
+        if(response.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Trip started!");
+            await LoadData();
+        } else
+        {
+            Snackbar.Add("Something went wrong.");
+        }
     }
 
     private async Task CompleteTrip()
     {
-        // Replace with: await TripService.CompleteTripAsync(Id);
-        _trip!.Status = "Completed";
-        _trip.ArrivalTime = DateTime.Now;
+        var response = await Http.PutAsJsonAsync($"/api/v1/trips/{Id}/complete", new { });
+
+        if (response.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Trip completed!");
+            await LoadData();
+        }
+        else
+        {
+            Snackbar.Add("Something went wrong.");
+        }
     }
 
     private void OpenLogDialog()
@@ -320,7 +320,21 @@ else
 
     private async Task SaveLog()
     {
-        // Replace with: await TripService.LogStopEventAsync(Id, _logForm);
+        var payload = new NextStopRequest
+            {
+                TripId = Id,
+                PassengerCount = _logForm.PassengerCount
+            };
+        var response = await Http.PostAsJsonAsync($"/api/v1/trips/{Id}/next", payload);
+        if (response.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Trip log added!");
+            await LoadData();
+        }
+        else
+        {
+            Snackbar.Add("Something went wrong.");
+        }
         _logDialogVisible = false;
     }
 

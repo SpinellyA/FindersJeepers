@@ -21,7 +21,7 @@ public class JeepneyController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetJeepneyById(int id)
     {
-        var result = await jeepService.GetByIdAsync(id);
+        var result = await jeepService.GetDetail(id);
         return Ok(result);
     }
     [HttpPost]

@@ -11,7 +11,7 @@ public class RouteService : IRouteService
         _uow = uow;
     }
 
-    public async Task<List<RouteDto>> GetRoutes()
+    public async Task<List<RouteDto>> GetRoutesAsync()
     {
         var result = await (
         from r in _uow.Routes.Get()
@@ -42,7 +42,7 @@ public class RouteService : IRouteService
         return result;
     }
 
-    public async Task<RouteDetail> GetRoute(int routeId)
+    public async Task<RouteDetail> GetDetailAsync(int routeId)
     {
         var route = await _uow.Routes.GetByIdAsync(routeId);
 

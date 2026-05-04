@@ -58,7 +58,6 @@ public class Trip : AggregateRoot
         // i depart from ayala with N people. When departing, CLASSIFY ONLY THOSE WHO HAVE GET ON THE JEEP.
 
         if (Status != TripStatus.OnGoing) throw new DomainException("Trip has not started yet!");
-
         var log = TripLog.Create(this.Id, stopId, passengerCount,capacity, logType);
         _logs.Add(log);
         // Event: if this log is Route.LocationStopId then complete this trip.

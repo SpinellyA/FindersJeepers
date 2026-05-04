@@ -33,7 +33,7 @@ public class JeepService : IJeepService
         )
         .ToListAsync();
     }
-    public async Task<JeepneyDetail> GetByIdAsync(int jeepId)
+    public async Task<JeepneyDetail> GetDetail(int jeepId)
     {
         var jeep = await _uow.Jeepneys.GetByIdAsync(jeepId);
         if (jeep == null) throw new InvalidIdException("Invalid jeepney ID!");

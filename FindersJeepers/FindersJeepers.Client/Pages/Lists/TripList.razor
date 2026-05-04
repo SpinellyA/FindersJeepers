@@ -1,5 +1,7 @@
 ﻿@page "/trips"
 @using MudBlazor
+@inject HttpClient Http
+@inject NavigationManager _nav
 
 <MudContainer MaxWidth="MaxWidth.False" Class="pa-6">
 
@@ -45,7 +47,7 @@ else
         @foreach (var trip in FilteredTrips)
         {
             <MudItem xs="12" sm="6" md="4">
-                    <MudCard Elevation="2" Style="border-radius:12px;" Class="transition-card">
+                    <MudCard Elevation="2" Style="border-radius:12px;" Class="transition-card" @onclick="() => NavigateToTrip(trip.Id)">
                     <MudCardHeader>
                         <CardHeaderAvatar>
                             <MudAvatar Color="@GetStatusColor(trip.Status)" Size="Size.Large" Variant="Variant.Filled">
@@ -241,12 +243,7 @@ else
             new() { Id = 4, Name = "Carbon Market" },
         };
 
-        _trips = new List<TripDto>
-        {
-            new() { Id = 1, PlateNumber = "ABX 1234", RouteCode = "01A", Status = "OnGoing", DepartureTime = DateTime.Now.AddHours(-1), LogCount = 3 },
-            new() { Id = 2, PlateNumber = "CDY 5678", RouteCode = "02B", Status = "Waiting", LogCount = 0 },
-            new() { Id = 3, PlateNumber = "ABX 1234", RouteCode = "01A", Status = "Completed", DepartureTime = DateTime.Now.AddHours(-4), ArrivalTime = DateTime.Now.AddHours(-2), LogCount = 6 },
-        };
+        _trips = await Http.GetFromJsonAsync<List<TripDto>>("/api/v1/trips");
     }
 
     private Color GetStatusColor(string status) => status switch
@@ -317,6 +314,10 @@ else
         _logDialogVisible = false;
     }
 
+    private void NavigateToTrip(int id)
+    {
+        _nav.NavigateTo($"/trips/{id}");
+    }
 
 
     public class TripForm { public int JeepneyId { get; set; } }
