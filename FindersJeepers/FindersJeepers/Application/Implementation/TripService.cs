@@ -10,11 +10,15 @@ public class TripService : ITripService
         _uow = uow;
     }
 
-    public async Task CreateDriverTrip(StartDriverTripRequest req)
+    public async Task CreateDriverTrip(StartTripRequest req)
     {
-        var currentTrip = await _uow.Trips.GetCurrentTripByDriverAsync(req.DriverId);
-        if (currentTrip != null)
-            throw new ApplicationException("This driver is already on a trip!");
+        var currentTripOfDriver = await _uow.Trips.GetCurrentTripByDriverAsync(req.DriverId);
+        if (currentTripOfDriver != null)
+            throw new ApplicationException("This driver is busy on a trip different!");
+
+        var currentTripOfJeepney = await _uow.Trips.GetCurrentTripByJeepneyAsync((int)req.JeepId);
+        if (currentTripOfJeepney != null)
+            throw new ApplicationException("This jeepney is on a trip!");
 
         if (req.Direction == null)
         {
