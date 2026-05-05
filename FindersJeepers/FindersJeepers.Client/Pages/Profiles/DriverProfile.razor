@@ -302,7 +302,7 @@ else
 
     public async Task HandleStartTripAsync(int jeepId)
     {
-        var request = new StartDriverTripRequest
+        var request = new StartTripRequest
             {
                 JeepId = jeepId,
                 Direction = RouteDirection.Forward,
