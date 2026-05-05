@@ -13,7 +13,7 @@ public class TripController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateTrip([FromBody] StartDriverTripRequest req)
+    public async Task<IActionResult> CreateTrip([FromBody] StartTripRequest req)
     {
         await _tripService.CreateDriverTrip(req);
         return Ok();
