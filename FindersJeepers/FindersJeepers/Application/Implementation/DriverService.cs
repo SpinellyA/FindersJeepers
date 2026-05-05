@@ -92,7 +92,7 @@ public class DriverService : IDriverService
         var jeepneyIds = jeepneyData.Select(x => x.Jeepney.Id).ToList();
         var routesByJeepneyId = jeepneyData.ToDictionary(x => x.Jeepney.Id, x => x.Route.RouteCode);
         var trips = await _uow.Trips.Get()
-            .Where(t => jeepneyIds.Contains(t.JeepneyId))
+            .Where(t => jeepneyIds.Contains(t.JeepneyId) && t.DriverId == driverId)
             .Select(t => new
             {
                 t.Id,
