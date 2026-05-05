@@ -7,7 +7,10 @@ public class TripRepository : Repository<Trip>, ITripRepository
     }
 
     public async Task<Trip?> GetCurrentTripByDriverAsync(int driverId) =>
-        await _set.Where(x => x.DriverId == driverId && x.Status == TripStatus.OnGoing || x.Status == TripStatus.Waiting)
+        await _set.Where(x => x.DriverId == driverId && (x.Status == TripStatus.OnGoing || x.Status == TripStatus.Waiting))
+            .FirstOrDefaultAsync();
+    public async Task<Trip?> GetCurrentTripByJeepneyAsync(int jeepId) =>
+        await _set.Where(x => x.JeepneyId == jeepId && (x.Status == TripStatus.OnGoing || x.Status == TripStatus.Waiting))
             .FirstOrDefaultAsync();
 
     public async Task<List<Trip>> GetTripsOfJeep(int jeepId) =>
