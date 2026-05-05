@@ -61,52 +61,97 @@ public class TripService : ITripService
         await _uow.Trips.AddAsync(trip);
         await _uow.SaveChangesAsync();
     }
+
+    // God forbid this was a BITCH to code not even AI was able to help me.
+    // Sponsored by finite state machines.
     public async Task NextStop(NextStopRequest req)
     {
         var trip = await _uow.Trips.GetByIdAsync(req.TripId);
+        if (trip == null) throw new InvalidIdException("Trip not found!");
+        if (trip.Status != TripStatus.OnGoing) throw new DomainException("Trip is not ongoing!");
+
         var route = await _uow.Routes.GetByIdAsync(trip.RouteId);
         var jeepney = await _uow.Jeepneys.GetByIdAsync(trip.JeepneyId);
 
-        // 1. Get the absolute last log entry
-        var lastLog = trip.Logs.OrderByDescending(x => x.TimeStamp).FirstOrDefault();
+        // filter trips by direction
+        var directedStops = route.Stops
+            .Where(s => s.Direction == trip.Direction)
+            .OrderBy(s => s.StopIndex)
+            .ToList();
 
-        RouteStop targetStop;
+        var lastLog = trip.Logs
+            .OrderByDescending(x => x.TimeStamp)
+            .FirstOrDefault();
+
+        int stopId;
         TripLogType nextLogType;
+        bool isTerminal = false;
 
         if (lastLog == null)
         {
-            // INITIAL STATE: First event of the trip must be Departure from Stop 1
-            targetStop = route.Stops.OrderBy(x => x.StopIndex).FirstOrDefault();
+            // If no logs,
+            // first event is always departure from the route's start location.
+            stopId = route.LocationStartId;
             nextLogType = TripLogType.Departure;
         }
         else if (lastLog.EventType == TripLogType.Arrival)
         {
-            // STATE: We just arrived at a stop. Next event is DEPARTURE from the SAME stop.
-            targetStop = route.Stops.FirstOrDefault(x => x.Id == lastLog.StopId);
+            // If arrived,
+            // next event is departure from the same stop.
+            stopId = lastLog.StopId;
             nextLogType = TripLogType.Departure;
         }
         else
         {
-            // STATE: We just departed a stop. Next event is ARRIVAL at the NEXT stop index.
-            var currentStop = route.Stops.FirstOrDefault(x => x.Id == lastLog.StopId);
-            targetStop = route.Stops.FirstOrDefault(x => x.StopIndex == currentStop.StopIndex + 1);
-            nextLogType = TripLogType.Arrival;
+            // If departed
+            // know where we departed and whats the next stop
+
+            if (lastLog.StopId == route.LocationStartId)
+            {
+                // if depart is start location
+                // Next arrival is at stop index 0
+                var firstStop = directedStops.FirstOrDefault();
+
+                if (firstStop == null)
+                {
+                    // if no stops, go to end location.
+                    stopId = route.LocationEndId;
+                    nextLogType = TripLogType.Arrival;
+                    isTerminal = true;
+                }
+                else
+                {
+                    stopId = firstStop.Id;
+                    nextLogType = TripLogType.Arrival;
+                }
+            }
+            else
+            {
+                // find next stop after departure
+                var currentStop = directedStops.FirstOrDefault(s => s.Id == lastLog.StopId);
+                var nextStop = directedStops.FirstOrDefault(s => s.StopIndex == currentStop.StopIndex + 1);
+
+                if (nextStop == null)
+                {
+                    // if no more stops, next one is arrival at the locationEndId
+                    stopId = route.LocationEndId;
+                    nextLogType = TripLogType.Arrival;
+                    isTerminal = true;
+                }
+                else
+                {
+                    stopId = nextStop.Id;
+                    nextLogType = TripLogType.Arrival;
+                }
+            }
         }
 
-        bool isLast = false;
+        // persist
+        trip.LogStopEvent(stopId, req.PassengerCount, jeepney.Capacity, nextLogType);
 
-        // 2. Validation
-        if (targetStop == null)
-            isLast = true;
-
-        // 3. Execution
-        trip.LogStopEvent(isLast ? targetStop.Id : route.LocationEndId, req.PassengerCount, jeepney.Capacity, nextLogType);
-
-        // 4. Completion Logic: Trip ends when we ARRIVE at the final location
-        if (nextLogType == TripLogType.Arrival && isLast)
-        {
+        // auto complete trip.
+        if (isTerminal && nextLogType == TripLogType.Arrival)
             trip.CompleteTrip();
-        }
 
         _uow.Trips.Update(trip);
         await _uow.SaveChangesAsync();
@@ -116,7 +161,7 @@ public class TripService : ITripService
     {
         return await (
             from t in _uow.Trips.Get()
-            join j in _uow.Jeepneys.Get() on t.Id equals j.Id
+            join j in _uow.Jeepneys.Get() on t.JeepneyId equals j.Id
             join r in _uow.Routes.Get() on j.RouteId equals r.Id
             select new TripDto
             {
