@@ -1,4 +1,4 @@
-﻿public record StartDriverTripRequest
+﻿public record StartTripRequest
 {
     public int DriverId { get; set; }
     public int? JeepId { get; set; }
