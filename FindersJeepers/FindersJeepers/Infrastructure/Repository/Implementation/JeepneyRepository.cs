@@ -10,4 +10,16 @@ public class JeepneyRepository : Repository<Jeepney>, IJeepneyRepository
     {
         return await _set.Include(x => x.Drivers).FirstOrDefaultAsync(x => x.Id == id);
     }
+
+    public async Task<List<Jeepney>> GetByDriverAsync(int driverId)
+        => await _context.Jeepneys
+            .Include(j => j.Drivers)
+            .Where(j => j.Drivers.Any(d => d.DriverId == driverId && d.UnassignedAt == null))
+            .ToListAsync();
+
+    //public async Task<List<Jeepney>> GetStandbyJeepsOfDriver(int driverId)
+    //{
+    //    var drivers = 
+    //    return await _set.Where(j => _context.Trips.Any(x => x.JeepneyId == j.Id && x.Status == TripStatus.Waiting))
+    //}
 }

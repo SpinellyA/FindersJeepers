@@ -1,5 +1,7 @@
 ﻿@page "/locations/{Id:int}"
 @using MudBlazor
+@inject HttpClient Http
+
 
 @if (_location is null)
 {
@@ -196,24 +198,7 @@ else
     {
         // Replace with: _location = await LocationService.GetDetailAsync(Id);
         await Task.Delay(300);
-
-        _location = new LocationDetail
-        {
-            Id = Id,
-            Name = "Ayala Center Cebu",
-            Description = "Main commercial hub in Cebu City.",
-            Routes = new List<RouteSummary>
-            {
-                new() { Id = 1, RouteCode = "01A", LocationStart = "Ayala Center Cebu", LocationEnd = "Carbon Market" },
-                new() { Id = 3, RouteCode = "03C", LocationStart = "Ayala Center Cebu", LocationEnd = "SM City Cebu" },
-            },
-            StopOccurrences = new List<RouteStopOccurrence>
-            {
-                new() { RouteId = 1, RouteCode = "01A", StopIndex = 0 },
-                new() { RouteId = 2, RouteCode = "02B", StopIndex = 2 },
-                new() { RouteId = 3, RouteCode = "03C", StopIndex = 0 },
-            }
-        };
+        _location = await Http.GetFromJsonAsync<LocationDetail>($"/api/v1/locations/{Id}");
 
         _breadcrumbs = new List<BreadcrumbItem>
         {

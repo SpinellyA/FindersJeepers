@@ -93,6 +93,7 @@ else
                                                 </MudText>
                                             </MudStack>
                                             <MudSpacer />
+                                            <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="() => HandleStartTripAsync(jeepney.Id)">Start Trip</MudButton>
                                             <MudButton Variant="Variant.Text" Color="Color.Primary"
                                                        Href="@($"/jeepneys/{jeepney.Id}")">
                                                 View
@@ -297,6 +298,25 @@ else
     private async Task LoadData()
     {
         _driver = await Http.GetFromJsonAsync<DriverDetail>($"/api/v1/drivers/{Id}");
+    }
+
+    public async Task HandleStartTripAsync(int jeepId)
+    {
+        var request = new StartDriverTripRequest
+            {
+                JeepId = jeepId,
+                Direction = RouteDirection.Forward,
+                DriverId = Id
+            };
+        var response = await Http.PostAsJsonAsync("/api/v1/trips", request);
+
+        if(response.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Trip started successfully!");
+        } else
+        {
+            Snackbar.Add("Something went wrong...");
+        }
     }
 
     private void OpenEditDialog(DriverDetail driver) // change

@@ -7,4 +7,12 @@ public class RouteRepository : Repository<Route>, IRouteRepository
     {
     }
     public override async Task<Route> GetByIdAsync(int id) => await _set.Include(x => x.Stops).FirstOrDefaultAsync(x => x.Id == id);
+
+    public async Task<List<Route>> GetByLocationAsync(int locationId)
+        => await _context.Routes
+            .Include(r => r.Stops)
+            .Where(r => r.LocationStartId == locationId ||
+                        r.LocationEndId == locationId ||
+                        r.Stops.Any(s => s.LocationId == locationId))
+            .ToListAsync();
 }

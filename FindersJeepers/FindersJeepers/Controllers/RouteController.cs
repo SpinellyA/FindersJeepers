@@ -15,14 +15,14 @@ public class RouteController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetRoutes()
     {
-        var result = await _routeService.GetRoutes();
+        var result = await _routeService.GetRoutesAsync();
         return Ok(result);
     }
 
     [HttpGet("{routeId:int}")]
     public async Task<IActionResult> GetRoute(int routeId)
     {
-        var result = await _routeService.GetRoute(routeId);
+        var result = await _routeService.GetDetailAsync(routeId);
         return Ok(result);
     }
 

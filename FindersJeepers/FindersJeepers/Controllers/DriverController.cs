@@ -22,7 +22,7 @@ public class DriverController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var result = await _driverService.GetByIdAsync(id);
+        var result = await _driverService.GetDetail(id);
         return Ok(result);
     }
 

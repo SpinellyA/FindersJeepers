@@ -1,5 +1,6 @@
 ﻿
 
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 
 public class LocationService : ILocationService
@@ -33,9 +34,46 @@ public class LocationService : ILocationService
         }).ToListAsync();
     }
 
-    public Task<LocationDetail> GetByIdAsync(int locationId)
+    public async Task<LocationDetail> GetByIdAsync(int locationId)
     {
-        throw new NotImplementedException();
+        var location = await _uow.Locations.GetByIdAsync(locationId);
+        if (location == null) return null;
+
+        var routesQuery = _uow.Routes.Get();
+        var locationsQuery = _uow.Locations.Get();
+
+        var routes = await (from route in routesQuery
+                            join l1 in locationsQuery on route.LocationStartId equals l1.Id
+                            join l2 in locationsQuery on route.LocationEndId equals l2.Id
+                            where route.LocationStartId == locationId || route.LocationEndId == locationId
+                            select new RouteSummary
+                            {
+                                Id = route.Id,
+                                RouteCode = route.RouteCode,
+                                LocationStart = l1.Name,
+                                LocationEnd = l2.Name,
+                            }).ToListAsync();
+
+        var stops = await (from route in routesQuery
+                           where route.Stops.Any(x => x.LocationId == locationId)
+                           select new RouteStopOccurrence
+                           {
+                               RouteCode = route.RouteCode,
+                               RouteId = route.Id,
+                               StopIndex = route.Stops
+                                                .Where(x => x.LocationId == locationId)
+                                                .Select(x => x.StopIndex)
+                                                .FirstOrDefault()
+                           }).ToListAsync();
+
+        return new LocationDetail
+        {
+            Id = location.Id,
+            Name = location.Name,
+            Description = location.Description,
+            Routes = routes,
+            StopOccurrences = stops
+        };
     }
 
     public Task UpdateAsync(UpdateLocationRequest request)
