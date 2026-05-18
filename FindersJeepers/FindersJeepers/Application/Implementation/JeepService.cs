@@ -95,9 +95,12 @@ public class JeepService : IJeepService
             PastTrips = pastTrips,
         };
     }
-    public Task UpdateAsync(UpdateJeepneyRequest request)
+    public async Task UpdateAsync(UpdateJeepneyRequest request)
     {
-        throw new NotImplementedException();
+        var jeepney = await _uow.Jeepneys.GetByIdAsync(request.Id);
+        jeepney.UpdateInformation(request.PlateNumber, request.BodyNumber, request.Capacity, request.RouteId);
+        _uow.Jeepneys.Update(jeepney);
+        await _uow.SaveChangesAsync();
     }
     public Task DeleteAsync(int jeepId)
     {

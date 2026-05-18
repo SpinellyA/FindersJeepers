@@ -29,6 +29,19 @@ public class Jeepney : AggregateRoot
 
     }
 
+    public void UpdateInformation(string plateNumber, string bodyNumber, int capacity, int routeId)
+    {
+        if (string.IsNullOrEmpty(plateNumber)) throw new DomainException("Plate number cannot be empty.");
+        if (string.IsNullOrEmpty(bodyNumber)) throw new DomainException("Body number cannot be empty.");
+        if (capacity == 0) throw new DomainException("Capacity cannot be zero!");
+        if (routeId < 1) throw new DomainException("Invalid Route ID!");
+
+        PlateNumber = plateNumber;
+        BodyNumber = bodyNumber;
+        Capacity = capacity;
+        RouteId = routeId;
+    }
+
     public void AssignDriver(int driverId)
     {
         if (driverId < 1) throw new DomainException("Invalid driver id!");
