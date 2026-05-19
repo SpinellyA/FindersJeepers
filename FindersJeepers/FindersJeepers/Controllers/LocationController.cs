@@ -18,12 +18,21 @@ public class LocationController : ControllerBase
         var result = await _locationService.GetAsync();
         return Ok(result);
     }
+
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> UpdateLocation(int id, [FromBody] UpdateLocationRequest request)
+    {
+        await _locationService.UpdateAsync(request);
+        return Ok();
+    }
+
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetLocation(int id)
     {
         var result = await _locationService.GetByIdAsync(id);
         return Ok(result);
     }
+
     [HttpPost]
     public async Task<IActionResult> CreateLocation([FromBody] CreateLocationRequest request)
     {

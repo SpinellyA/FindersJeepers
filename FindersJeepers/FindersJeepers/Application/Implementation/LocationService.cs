@@ -76,9 +76,13 @@ public class LocationService : ILocationService
         };
     }
 
-    public Task UpdateAsync(UpdateLocationRequest request)
+    public async Task UpdateAsync(UpdateLocationRequest request)
     {
-        throw new NotImplementedException();
+        var location = await _uow.Locations.GetByIdAsync(request.Id);
+
+        location.UpdateInformation(request.Name, request.Description);
+        _uow.Locations.Update(location);
+        await _uow.SaveChangesAsync();
     }
 }
 
