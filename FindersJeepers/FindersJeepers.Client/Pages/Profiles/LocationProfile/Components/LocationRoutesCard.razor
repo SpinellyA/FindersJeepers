@@ -1,0 +1,51 @@
+﻿@using MudBlazor
+
+<MudCard Elevation="2" Style="border-radius:14px;">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6" Class="fw-bold">Routes Through This Location</MudText>
+            <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                Routes where this location appears as a start, end, or stop.
+            </MudText>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudDivider />
+    <MudCardContent>
+        @if (!Routes.Any())
+        {
+            <MudAlert Severity="Severity.Info" Dense="true">
+                This location is not part of any route yet.
+            </MudAlert>
+        }
+        else
+        {
+            <MudList T="RouteSummary" Dense="true" DisablePadding="true">
+                @foreach (var route in Routes)
+                {
+                    <MudListItem T="RouteSummary">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                <MudAvatar Color="Color.Tertiary" Size="Size.Small" Variant="Variant.Filled">
+                                    <MudIcon Icon="@Icons.Material.Filled.AltRoute" Size="Size.Small" />
+                                </MudAvatar>
+                                <MudStack Spacing="0">
+                                    <MudText Typo="Typo.body2" Class="fw-bold">@route.RouteCode</MudText>
+                                    <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                                        @route.LocationStart → @route.LocationEnd
+                                    </MudText>
+                                </MudStack>
+                            </MudStack>
+                            <MudIconButton Icon="@Icons.Material.Filled.OpenInNew"
+                                           Size="Size.Small"
+                                           Href="@($"/routes/{route.Id}")" />
+                        </MudStack>
+                    </MudListItem>
+                }
+            </MudList>
+        }
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter, EditorRequired] public List<RouteSummary> Routes { get; set; } = [];
+}

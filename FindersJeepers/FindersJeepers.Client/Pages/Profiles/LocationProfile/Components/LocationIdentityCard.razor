@@ -1,0 +1,41 @@
+﻿@using MudBlazor
+
+<MudCard Elevation="2" Style="border-radius:14px;">
+    <MudCardContent Class="d-flex flex-column align-items-center text-center pa-6">
+        <MudAvatar Color="Color.Primary" Style="width:80px;height:80px;" Class="mb-3" Variant="Variant.Filled">
+            <MudIcon Icon="@Icons.Material.Filled.LocationOn" Style="font-size:2.2rem;" />
+        </MudAvatar>
+
+        <MudText Typo="Typo.h5" Class="fw-bold mb-1">@Location.Name</MudText>
+        <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
+            @(string.IsNullOrWhiteSpace(Location.Description) ? "No description provided." : Location.Description)
+        </MudText>
+
+        <MudDivider Class="w-100 mb-4" />
+
+        <MudStack Row="true" Justify="Justify.SpaceEvenly" Class="w-100">
+            <MudStack Spacing="0" AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.h6" Class="fw-bold">@Location.Routes.Count</MudText>
+                <MudText Typo="Typo.caption" Class="mud-text-secondary">Routes</MudText>
+            </MudStack>
+            <MudDivider Vertical="true" FlexItem="true" />
+            <MudStack Spacing="0" AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.h6" Class="fw-bold">@Location.StopOccurrences.Count</MudText>
+                <MudText Typo="Typo.caption" Class="mud-text-secondary">Stop References</MudText>
+            </MudStack>
+        </MudStack>
+
+        <MudDivider Class="w-100 my-4" />
+
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" FullWidth="true"
+                   StartIcon="@Icons.Material.Filled.Edit"
+                   OnClick="() => OnEditClicked.InvokeAsync()">
+            Edit Location
+        </MudButton>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter, EditorRequired] public LocationDetail Location { get; set; } = default!;
+    [Parameter] public EventCallback OnEditClicked { get; set; }
+}

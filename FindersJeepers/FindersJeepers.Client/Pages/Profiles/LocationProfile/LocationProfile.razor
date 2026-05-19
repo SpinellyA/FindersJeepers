@@ -1,0 +1,59 @@
+﻿@page "/locations/{Id:int}"
+@using FindersJeepers.Client.Pages.Profiles.LocationProfile.Components
+@using MudBlazor
+@inject LocationDetailViewModel ViewModel
+@inject IDialogService DialogService
+
+@if (ViewModel.IsLoading)
+{
+    <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+}
+else
+{
+    <MudBreadcrumbs Items="ViewModel.Breadcrumbs" Class="mb-4 px-0" />
+
+    <MudGrid Spacing="4">
+
+        <MudItem xs="12" md="4">
+            <LocationIdentityCard
+                Location="ViewModel.Location!"
+                OnEditClicked="OpenEditDialogAsync" />
+        </MudItem>
+
+        <MudItem xs="12" md="8">
+            <MudStack Spacing="4">
+                <LocationRoutesCard Routes="ViewModel.Location!.Routes" />
+                <LocationStopOccurrencesCard StopOccurrences="ViewModel.Location!.StopOccurrences" />
+            </MudStack>
+        </MudItem>
+
+    </MudGrid>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+        => await ViewModel.LoadAsync(Id);
+
+    private async Task OpenEditDialogAsync()
+    {
+        var parameters = new DialogParameters<EditLocationDialog>
+        {
+            { x => x.Location, ViewModel.Location! }
+        };
+
+        var options = new DialogOptions
+        {
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true,
+            CloseOnEscapeKey = true
+        };
+
+        var dialog = await DialogService.ShowAsync<EditLocationDialog>("Edit Location", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false })
+            await ViewModel.LoadAsync(Id);
+    }
+}

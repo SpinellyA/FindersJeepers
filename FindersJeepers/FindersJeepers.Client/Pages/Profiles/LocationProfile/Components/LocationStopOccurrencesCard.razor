@@ -1,0 +1,54 @@
+﻿@using MudBlazor
+
+<MudCard Elevation="2" Style="border-radius:14px;">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6" Class="fw-bold">Stop Occurrences</MudText>
+            <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                Every route stop entry that references this location and its position.
+            </MudText>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudDivider />
+    <MudCardContent>
+        @if (!StopOccurrences.Any())
+        {
+            <MudAlert Severity="Severity.Info" Dense="true">
+                No route stops reference this location yet.
+            </MudAlert>
+        }
+        else
+        {
+            <MudTable Items="StopOccurrences" Dense="true" Hover="true" Elevation="0">
+                <HeaderContent>
+                    <MudTh>Route</MudTh>
+                    <MudTh>Stop Index</MudTh>
+                    <MudTh></MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                            <MudIcon Icon="@Icons.Material.Filled.AltRoute"
+                                     Size="Size.Small" Class="mud-text-secondary" />
+                            <MudText Typo="Typo.body2">@context.RouteCode</MudText>
+                        </MudStack>
+                    </MudTd>
+                    <MudTd>
+                        <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">
+                            Stop #@context.StopIndex
+                        </MudChip>
+                    </MudTd>
+                    <MudTd>
+                        <MudIconButton Icon="@Icons.Material.Filled.OpenInNew"
+                                       Size="Size.Small"
+                                       Href="@($"/routes/{context.RouteId}")" />
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter, EditorRequired] public List<RouteStopOccurrence> StopOccurrences { get; set; } = [];
+}
