@@ -7,6 +7,15 @@ public class Jeepney : AggregateRoot
     public int RouteId { get; private set; }
     private readonly List<JeepneyDriver> _drivers = new();
     public IReadOnlyCollection<JeepneyDriver> Drivers => _drivers;
+
+    public bool IsDeleted { get; private set; } = false;
+
+    public void Delete()
+    {
+        if (IsDeleted) throw new DomainException("This is entity deleted!");
+        IsDeleted = true;
+    }
+
     private Jeepney()
     {
          
@@ -16,7 +25,8 @@ public class Jeepney : AggregateRoot
     {
         if (string.IsNullOrEmpty(plateNumber)) throw new DomainException("Plate number cannot be empty.");
         if (string.IsNullOrEmpty(bodyNumber)) throw new DomainException("Body number cannot be empty.");
-        if (capacity == 0) throw new DomainException("Capacity cannot be zero!");
+        if (capacity < 8) throw new DomainException("What kind of jeep are we making here?");
+        if (capacity > 40) throw new DomainException("This is FindersJeepers, not FindersBus");
         if (routeId < 1) throw new DomainException("Invalid Route ID!");
 
         return new Jeepney
@@ -33,7 +43,8 @@ public class Jeepney : AggregateRoot
     {
         if (string.IsNullOrEmpty(plateNumber)) throw new DomainException("Plate number cannot be empty.");
         if (string.IsNullOrEmpty(bodyNumber)) throw new DomainException("Body number cannot be empty.");
-        if (capacity == 0) throw new DomainException("Capacity cannot be zero!");
+        if (capacity < 8) throw new DomainException("What kind of jeep are we making here?");
+        if (capacity > 40) throw new DomainException("This is FindersJeepers, not FindersBus");
         if (routeId < 1) throw new DomainException("Invalid Route ID!");
 
         PlateNumber = plateNumber;

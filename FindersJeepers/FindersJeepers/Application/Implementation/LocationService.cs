@@ -1,5 +1,6 @@
 ﻿
 
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,9 +19,21 @@ public class LocationService : ILocationService
         await _uow.SaveChangesAsync();
     }
 
-    public Task DeleteAsync(int jeepId)
+    public async Task DeleteAsync(int locationId)
     {
-        throw new NotImplementedException();
+        var location = await _uow.Locations.GetByIdAsync(locationId);
+
+        var routesWithLocation = await _uow.Routes.GetByLocationAsync(locationId);
+
+        foreach (var route in routesWithLocation)
+        {
+            if ((await _uow.Trips.GetActiveTripsOnRouteAsync(route.Id)).Any())
+                throw new ApplicationException("You cannot delete a location being used by a route used by an active trip!");
+        }
+
+        location.Delete();
+        _uow.Locations.Update(location);
+        await _uow.SaveChangesAsync();
     }
 
     public async Task<List<LocationDto>> GetAsync(int pageNumber = -1, int pageSize = -1)

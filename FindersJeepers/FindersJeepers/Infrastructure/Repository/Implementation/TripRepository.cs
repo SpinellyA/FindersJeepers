@@ -13,8 +13,15 @@ public class TripRepository : Repository<Trip>, ITripRepository
         await _set.Where(x => x.JeepneyId == jeepId && (x.Status == TripStatus.OnGoing || x.Status == TripStatus.Waiting))
             .FirstOrDefaultAsync();
 
-    public async Task<List<Trip>> GetTripsOfJeep(int jeepId) =>
+    public async Task<List<Trip>> GetTripsOfJeepAsync(int jeepId) =>
         await _set.Where(x => x.JeepneyId == jeepId).ToListAsync();
 
-    public override Task<Trip> GetByIdAsync(int id) => _context.Trips.Include(x=>x.Logs).FirstOrDefaultAsync(x=>x.Id == id);
+    public override Task<Trip> GetByIdAsync(int id) => _context.Trips.Include(x=>x.Logs)
+        .FirstOrDefaultAsync(x=>x.Id == id);
+
+
+    public async Task<List<Trip>> GetActiveTripsOnRouteAsync(int routeId) => await _context.Trips
+        .Where(x=>x.RouteId == routeId && x.Status != TripStatus.Completed).ToListAsync();
+
+    public override IQueryable<Trip> Get() => _context.Trips.Where(x => x.IsDeleted == false).AsQueryable();
 }

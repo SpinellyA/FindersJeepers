@@ -233,4 +233,16 @@ public class TripService : ITripService
         _uow.Trips.Update(trip);
         await _uow.SaveChangesAsync();
     }
+
+    public async Task DeleteAsync(int tripId)
+    {
+        var trip = await _uow.Trips.GetByIdAsync(tripId);
+
+        if (trip.Status != TripStatus.Completed)
+            throw new ApplicationException("You cannot delete an active trip!");
+
+        trip.Delete();
+        _uow.Trips.Update(trip);
+        await _uow.SaveChangesAsync();
+    }
 }

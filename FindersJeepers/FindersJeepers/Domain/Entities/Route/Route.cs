@@ -7,6 +7,15 @@ public class Route : AggregateRoot
     public int LocationStartId { get; private set; }
     public int LocationEndId { get; private set; }
 
+    public bool IsDeleted { get; private set; } = false;
+
+    public void Delete()
+    {
+        if (IsDeleted) throw new DomainException("This is entity deleted!");
+        IsDeleted = true;
+    }
+
+
     private readonly List<RouteStop> _stops = new();
     public IReadOnlyCollection<RouteStop> Stops => _stops;
 

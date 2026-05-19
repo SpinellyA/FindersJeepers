@@ -5,6 +5,13 @@ public class Location : AggregateRoot
     public string Name { get; private set; }
     public string Description { get; private set; }
 
+    public bool IsDeleted { get; private set; } = false;
+    public void Delete()
+    {
+        if (IsDeleted) throw new DomainException("This is entity deleted!");
+        IsDeleted = true;
+    }
+
     private Location()
     {
          

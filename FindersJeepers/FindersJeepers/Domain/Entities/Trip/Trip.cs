@@ -13,6 +13,14 @@ public class Trip : AggregateRoot
     private List<TripLog> _logs = new List<TripLog>();
     public IReadOnlyCollection<TripLog> Logs => _logs;
 
+
+    public bool IsDeleted { get; private set; } = false;
+    public void Delete()
+    {
+        if (IsDeleted) throw new DomainException("This is entity deleted!");
+        IsDeleted = true;
+    }
+
     private Trip()
     {
     }

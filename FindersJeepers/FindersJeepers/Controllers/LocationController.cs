@@ -39,4 +39,10 @@ public class LocationController : ControllerBase
         await _locationService.CreateAsync(request);
         return Created();
     }
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        await _locationService.DeleteAsync(id);
+        return Ok();
+    }
 }

@@ -50,5 +50,10 @@ public class TripController : ControllerBase
         return Ok();
     }
 
-
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        await _tripService.DeleteAsync(id);
+        return Ok();
+    }
 }

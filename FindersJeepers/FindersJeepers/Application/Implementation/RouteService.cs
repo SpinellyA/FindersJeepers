@@ -10,7 +10,6 @@ public class RouteService : IRouteService
     {
         _uow = uow;
     }
-
     public async Task<List<RouteDto>> GetRoutesAsync()
     {
         var result = await (
@@ -41,7 +40,6 @@ public class RouteService : IRouteService
 
         return result;
     }
-
     public async Task<RouteDetail> GetDetailAsync(int routeId)
     {
         var route = await _uow.Routes.GetByIdAsync(routeId);
@@ -90,14 +88,12 @@ public class RouteService : IRouteService
             ReturnStops = rStops
         };
     }
-
     public async Task CreateRouteAsync(CreateRouteRequest req)
     {
         var route = Route.Create(req.RouteCode, req.StartLocation, req.EndLocation);
         await _uow.Routes.AddAsync(route);
         await _uow.SaveChangesAsync();
     }
-
     public async Task AddRouteStopsAsync(AddRouteStopRequest req)
     {
         var route = await _uow.Routes.GetByIdAsync(req.RouteId);
@@ -110,6 +106,20 @@ public class RouteService : IRouteService
             {
                 route.AddStop(stop.LocationId, stop.Index, req.RouteDirection);
             }
+        _uow.Routes.Update(route);
+        await _uow.SaveChangesAsync();
+    }
+
+
+    public async Task DeleteAsync(int routeId)
+    {
+        var route = await _uow.Routes.GetByIdAsync(routeId);
+        var currentTrip = await _uow.Trips.GetActiveTripsOnRouteAsync(routeId);
+
+        if (currentTrip.Any())
+            throw new ApplicationException("You cannot delete a route that is being used by a jeepney on a trip!");
+
+        route.Delete();
         _uow.Routes.Update(route);
         await _uow.SaveChangesAsync();
     }

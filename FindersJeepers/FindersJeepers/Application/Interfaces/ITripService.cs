@@ -9,4 +9,5 @@ public interface ITripService
     Task<TripDetailDto> GetDetailAsync(int tripId);
     Task StartTrip(int tripId);
     Task CompleteTrip(int tripId);
+    Task DeleteAsync(int tripId);
 }

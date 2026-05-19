@@ -39,4 +39,11 @@ public class RouteController : ControllerBase
         return Created();
     }
 
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        await _routeService.DeleteAsync(id);
+        return Ok();
+    }
+
 }

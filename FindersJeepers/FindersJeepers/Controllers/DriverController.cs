@@ -54,6 +54,12 @@ public class DriverController : ControllerBase
 
         return Ok();
     }
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        await _driverService.DeleteAsync(id);
+        return Ok();
+    }
 
 
 }

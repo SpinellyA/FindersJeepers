@@ -98,13 +98,25 @@ public class JeepService : IJeepService
     public async Task UpdateAsync(UpdateJeepneyRequest request)
     {
         var jeepney = await _uow.Jeepneys.GetByIdAsync(request.Id);
+
+        var currentTrip = await _uow.Trips.GetCurrentTripByJeepneyAsync(request.Id);
+        if (currentTrip != null)
+            throw new ApplicationException("A jeep cannot be updated if its currently on a trip!");
+
         jeepney.UpdateInformation(request.PlateNumber, request.BodyNumber, request.Capacity, request.RouteId);
         _uow.Jeepneys.Update(jeepney);
         await _uow.SaveChangesAsync();
     }
-    public Task DeleteAsync(int jeepId)
+    public async Task DeleteAsync(int jeepId)
     {
-        throw new NotImplementedException();
+        var jeepney = await _uow.Jeepneys.GetByIdAsync(jeepId);
+        var currentTrip = await _uow.Trips.GetCurrentTripByJeepneyAsync(jeepId);
+        if (currentTrip != null)
+            throw new ApplicationException("A jeep cannot be deleted if its currently on a trip!");
+
+        jeepney.Delete();
+        _uow.Jeepneys.Update(jeepney);
+        await _uow.SaveChangesAsync();
     }
     public async Task AssignDriversAsync (AssignDriversRequest request)
     {

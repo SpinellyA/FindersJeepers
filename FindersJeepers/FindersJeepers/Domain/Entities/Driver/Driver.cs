@@ -6,6 +6,15 @@ public class Driver : AggregateRoot
     public string LicenseNumber { get; private set; } // alternate key
     public string ContactNumber { get; private set; }
     public DateTime DateHired {  get; private set; }
+
+    public bool IsDeleted { get; private set; } = false; 
+
+    public void Delete()
+    {
+        if (IsDeleted) throw new DomainException("This is entity deleted!");
+        IsDeleted = true;
+    }
+
     private Driver()
     {
          
