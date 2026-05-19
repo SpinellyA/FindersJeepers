@@ -178,6 +178,4 @@ public class DriverDetailViewModel
         SelectedJeepneyIds = new();
     }
 
-    // ── Nested form model ──
-
 }

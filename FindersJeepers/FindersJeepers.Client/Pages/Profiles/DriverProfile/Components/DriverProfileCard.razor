@@ -1,4 +1,8 @@
 ﻿@using MudBlazor
+@inject DriverDetailViewModel vm
+@inject HttpClient Http
+@inject ISnackbar Snackbar
+@inject NavigationManager navigation
 
 <MudCard Elevation="2" Style="border-radius:14px;">
     <MudCardContent Class="d-flex flex-column align-items-center text-center pa-6">
@@ -45,15 +49,34 @@
                        OnClick="OnStartTripClick">
                 Start New Trip
             </MudButton>
-            <MudButton Variant="Variant.Outlined" Color="Color.Primary" FullWidth="true"
+
+            <MudButtonGroup Variant="Variant.Outlined">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true"
                        StartIcon="@Icons.Material.Filled.Edit"
                        OnClick="OnEditClick">
                 Edit Profile
             </MudButton>
+            <MudMenu Icon="@Icons.Material.Filled.ArrowDropDown">
+                <MudMenuItem OnClick="OpenDeleteConfirmation">Delete</MudMenuItem>
+            </MudMenu>
+            </MudButtonGroup>
         </MudStack>
 
     </MudCardContent>
 </MudCard>
+
+<MudMessageBox Title="Warning" Visible="DeleteVisible">
+    <MessageContent>
+        Are you sure you want to delete this Driver?
+    </MessageContent>
+    <YesButton>
+        <MudButton Variant="Variant.Filled" onclick="HandleDelete" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteForever">Delete!</MudButton>
+    </YesButton>
+    <CancelButton>
+        <MudButton Variant="Variant.Outlined" onclick="HandleCancel" Color="Color.Primary">Cancel</MudButton>
+
+    </CancelButton>
+</MudMessageBox>
 
 @code {
     [Parameter, EditorRequired] public DriverDetail Driver { get; set; } = null!;
@@ -61,4 +84,32 @@
     [Parameter] public int YearsOfService { get; set; }
     [Parameter] public EventCallback OnEditClick { get; set; }
     [Parameter] public EventCallback OnStartTripClick { get; set; }
+
+    public bool DeleteVisible { get; set; } = false;
+
+    public void OpenDeleteConfirmation()
+    {
+        DeleteVisible = true;
+    }
+    public void HandleCancel()
+    {
+        DeleteVisible = false;
+    }
+    public async Task HandleDelete()
+    {
+        var response = await Http.DeleteAsync($"/api/v1/drivers/{Driver.Id}");
+
+        if(response.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Deleted Employee Successfully!");
+            navigation.NavigateTo("/drivers/");
+
+        } else
+        {
+            Snackbar.Add("Something went wrong.");
+        }
+    }
+
+
+
 }
