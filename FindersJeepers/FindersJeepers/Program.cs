@@ -23,6 +23,7 @@ builder.Services.AddApplication()           // LFG YO?
 
 builder.Services.AddScoped<DriverDetailViewModel>();
 builder.Services.AddScoped<JeepneyDetailViewModel>();
+builder.Services.AddScoped<LocationDetailViewModel>();
 
 
 builder.Services.AddDbContext<MyDbContext>(options => options.UseNpgsql(connectionString));

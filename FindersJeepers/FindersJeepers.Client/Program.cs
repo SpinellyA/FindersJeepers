@@ -6,7 +6,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
 builder.Services.AddScoped<DriverDetailViewModel>();
 builder.Services.AddScoped<JeepneyDetailViewModel>();
-
+builder.Services.AddScoped<LocationDetailViewModel>();
 
 builder.Services.AddMudServices();
 builder.Services.AddScoped(sp => new HttpClient
