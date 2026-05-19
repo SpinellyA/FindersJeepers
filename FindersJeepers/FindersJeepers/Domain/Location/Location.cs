@@ -20,4 +20,12 @@ public class Location : AggregateRoot
             Description = description
         };
     }
+
+    public void UpdateInformation(string name, string description)
+    {
+        if (string.IsNullOrEmpty(name)) throw new DomainException("Name cannot be empty!");
+
+        Name = name;
+        Description = description;
+    }
 }
